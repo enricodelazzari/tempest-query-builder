@@ -2,4 +2,4 @@
 
 namespace EnricoDeLazzari\QueryBuilder;
 
-class QueryBuilderClass {}
+class QueryBuilder {}
