@@ -21,7 +21,7 @@ it('can build query without filters in request', function () {
         };
 
     expect($query->toSql())->toBe(implode(PHP_EOL, [
-        'SELECT books.id AS `books.id`',
+        'SELECT books.author_id AS `books.author_id`, books.id AS `books.id`',
         'FROM `books`',
     ]));
 
@@ -45,7 +45,7 @@ it('can build query with an exact filter', function () {
         };
 
     expect($query->toSql())->toBe(implode(PHP_EOL, [
-        'SELECT books.id AS `books.id`',
+        'SELECT books.author_id AS `books.author_id`, books.id AS `books.id`',
         'FROM `books`',
         'WHERE `books`.`id` = ?',
     ]));
@@ -70,7 +70,7 @@ it('can build query with an exact filter with comma separated values', function 
         };
 
     expect($query->toSql())->toBe(implode(PHP_EOL, [
-        'SELECT books.id AS `books.id`',
+        'SELECT books.author_id AS `books.author_id`, books.id AS `books.id`',
         'FROM `books`',
         'WHERE `books`.`id` IN (?,?)',
     ]));
@@ -97,7 +97,7 @@ it('can build query with multiple exact filters', function () {
         };
 
     expect($query->toSql())->toBe(implode(PHP_EOL, [
-        'SELECT books.id AS `books.id`',
+        'SELECT books.author_id AS `books.author_id`, books.id AS `books.id`',
         'FROM `books`',
         'WHERE `books`.`id` = ?',
         'AND `books`.`title` = ?',
@@ -123,7 +123,7 @@ it('can build query with a partial filter', function () {
         };
 
     expect($query->toSql())->toBe(implode(PHP_EOL, [
-        'SELECT books.id AS `books.id`',
+        'SELECT books.author_id AS `books.author_id`, books.id AS `books.id`',
         'FROM `books`',
         'WHERE `books`.`title` LIKE ?',
     ]));

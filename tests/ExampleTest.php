@@ -38,7 +38,7 @@ it('can build query with a valid model', function () {
         };
 
     expect($query->toSql())->toBe(implode(PHP_EOL, [
-        'SELECT books.id AS `books.id`',
+        'SELECT books.author_id AS `books.author_id`, books.id AS `books.id`',
         'FROM `books`',
     ]));
 
@@ -57,7 +57,7 @@ it('can call tempest query builder methods after query', function () {
         }->where('id = ?', 1);
 
     expect($query->toSql())->toBe(implode(PHP_EOL, [
-        'SELECT books.id AS `books.id`',
+        'SELECT books.author_id AS `books.author_id`, books.id AS `books.id`',
         'FROM `books`',
         'WHERE id = ?',
     ]));

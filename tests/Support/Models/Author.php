@@ -4,9 +4,7 @@ namespace EnricoDeLazzari\QueryBuilder\Tests\Support\Models;
 
 use Tempest\Database\IsDatabaseModel;
 
-final class Book
+final class Author
 {
     use IsDatabaseModel;
-
-    public ?Author $author = null;
 }
