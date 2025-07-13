@@ -1,4 +1,4 @@
-# Tempest query builder
+# [WIP] Tempest query builder
 
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/enricodelazzari/tempest-query-builder.svg?style=flat-square)](https://packagist.org/packages/enricodelazzari/tempest-query-builder)
 [![Tests](https://img.shields.io/github/actions/workflow/status/enricodelazzari/tempest-query-builder/run-tests.yml?branch=main&label=tests&style=flat-square)](https://github.com/enricodelazzari/tempest-query-builder/actions/workflows/run-tests.yml)
