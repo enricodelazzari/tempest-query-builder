@@ -37,10 +37,30 @@ it('can build query with a valid model', function () {
             use HasQueryBuilder;
         };
 
-    expect($query->toSql())->toBe(implode("\n", [
+    expect($query->toSql())->toBe(implode(PHP_EOL, [
         'SELECT books.id AS `books.id`',
         'FROM `books`',
     ]));
 
     expect($query->getBindings())->toBe([]);
+});
+
+it('can call tempest query builder methods after query', function () {
+
+    $request = RequestFactory::make([]);
+
+    $query = new
+        #[Model(name: Book::class)]
+        class($request)
+        {
+            use HasQueryBuilder;
+        }->where('id = ?', 1);
+
+    expect($query->toSql())->toBe(implode(PHP_EOL, [
+        'SELECT books.id AS `books.id`',
+        'FROM `books`',
+        'WHERE id = ?'
+    ]));
+
+    expect(invade($query)->bindings)->toBe([1]);
 });
