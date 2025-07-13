@@ -1,18 +1,10 @@
-# This is my package tempest-query-builder
+# Tempest query builder
 
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/enricodelazzari/tempest-query-builder.svg?style=flat-square)](https://packagist.org/packages/enricodelazzari/tempest-query-builder)
 [![Tests](https://img.shields.io/github/actions/workflow/status/enricodelazzari/tempest-query-builder/run-tests.yml?branch=main&label=tests&style=flat-square)](https://github.com/enricodelazzari/tempest-query-builder/actions/workflows/run-tests.yml)
 [![Total Downloads](https://img.shields.io/packagist/dt/enricodelazzari/tempest-query-builder.svg?style=flat-square)](https://packagist.org/packages/enricodelazzari/tempest-query-builder)
 
-This is where your description should go. Try and limit it to a paragraph or two. Consider adding a small example.
-
-## Support us
-
-[<img src="https://github-ads.s3.eu-central-1.amazonaws.com/tempest-query-builder.jpg?t=1" width="419px" />](https://spatie.be/github-ad-click/tempest-query-builder)
-
-We invest a lot of resources into creating [best in class open source packages](https://spatie.be/open-source). You can support us by [buying one of our paid products](https://spatie.be/open-source/support-us).
-
-We highly appreciate you sending us a postcard from your hometown, mentioning which of our package(s) you are using. You'll find our address on [our contact page](https://spatie.be/about-us). We publish all received postcards on [our virtual postcard wall](https://spatie.be/open-source/postcards).
+This package allows you to filter, sort and include relations based on a http request. The QueryBuilder used in this package extends Tempest's default query builder. This means all your favorite methods are still available.
 
 ## Installation
 
@@ -28,6 +20,26 @@ composer require enricodelazzari/tempest-query-builder
 $skeleton = new EnricoDeLazzari\QueryBuilder();
 echo $skeleton->echoPhrase('Hello, EnricoDeLazzari!');
 ```
+
+## Features
+
+- [`filtering`](#filtering)
+- [`sorting`](#sorting)
+- [`including`](#including)
+
+### `filtering`
+
+The filter query parameters can be used to add where clauses to your query. Out of the box we support filtering results by partial attribute value and exact attribute value or even if an attribute value exists in a given array of values. For anything more advanced, custom filters can be used.
+
+### `sorting`
+
+The sort query parameter is used to determine by which property the results collection will be ordered. Sorting is ascending by default and can be reversed by adding a hyphen (-) to the start of the property name.
+
+All sorts have to be explicitly allowed by passing an array to the allowedSorts() method. The allowedSorts method takes an array of column names as strings or instances of AllowedSorts.
+
+### `including`
+
+The include query parameter will load any relation on the resulting models. All includes must be explicitly allowed using allowedIncludes().
 
 ## Testing
 
