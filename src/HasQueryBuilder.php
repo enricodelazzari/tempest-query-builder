@@ -26,7 +26,7 @@ trait HasQueryBuilder
 
         $model = $reflector->getAttribute(Model::class)?->name;
 
-        if (! model($model)->isObjectModel()) {
+        if (! model($model ?? '')->isObjectModel()) {
             throw new Exception('Invalid Model.');
         }
 
