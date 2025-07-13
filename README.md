@@ -31,6 +31,27 @@ echo $skeleton->echoPhrase('Hello, EnricoDeLazzari!');
 
 The filter query parameters can be used to add where clauses to your query. Out of the box we support filtering results by partial attribute value and exact attribute value or even if an attribute value exists in a given array of values. For anything more advanced, custom filters can be used.
 
+```php
+
+// GET /books?filter[author_id]=1
+
+use App\Models\Book;
+use EnricoDeLazzari\QueryBuilder\Attributes\AllowedFilter;
+use EnricoDeLazzari\QueryBuilder\Attributes\Model;
+use EnricoDeLazzari\QueryBuilder\Filters\ExactFilter;
+use EnricoDeLazzari\QueryBuilder\Filters\PartialFilter;
+use EnricoDeLazzari\QueryBuilder\HasQueryBuilder;
+
+#[Model(name: Book::class)]
+#[AllowedFilter(filter: new PartialFilter(), name: 'title')]
+#[AllowedFilter(filter: new ExactFilter(), name: 'author_id')]
+final class BookQueryBuilder
+{
+    use HasQueryBuilder;
+}
+
+```
+
 ### `sorting`
 
 The sort query parameter is used to determine by which property the results collection will be ordered. Sorting is ascending by default and can be reversed by adding a hyphen (-) to the start of the property name.
