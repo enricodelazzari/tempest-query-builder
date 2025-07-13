@@ -59,7 +59,7 @@ it('can call tempest query builder methods after query', function () {
     expect($query->toSql())->toBe(implode(PHP_EOL, [
         'SELECT books.id AS `books.id`',
         'FROM `books`',
-        'WHERE id = ?'
+        'WHERE id = ?',
     ]));
 
     expect(invade($query)->bindings)->toBe([1]);
