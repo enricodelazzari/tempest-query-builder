@@ -38,10 +38,10 @@ it('reads the parameter names from the config', function (): void {
 
     expect(sql($query))->toBe(implode(' ', [
         'SELECT '.BOOK_FIELDS.', '.AUTHOR_FIELDS,
-        'FROM `books`',
+        'FROM books',
         AUTHOR_JOIN,
-        'WHERE `books`.`title` = ?',
-        'ORDER BY `books`.`title` DESC',
+        'WHERE books.title = ?',
+        'ORDER BY books.title DESC',
     ]));
 
     expect($query->bindings)->toBe(['tempest']);

@@ -21,7 +21,7 @@ it('selects every column when the request asks for no fields', function (): void
             use HasQueryBuilder;
         };
 
-    expect(sql($query))->toBe('SELECT '.BOOK_FIELDS.' FROM `books`');
+    expect(sql($query))->toBe('SELECT '.BOOK_FIELDS.' FROM books');
 });
 
 it('narrows the selection to a requested field', function (): void {
@@ -35,7 +35,7 @@ it('narrows the selection to a requested field', function (): void {
             use HasQueryBuilder;
         };
 
-    expect(sql($query))->toBe('SELECT books.title AS `books.title` FROM `books`');
+    expect(sql($query))->toBe('SELECT books.title AS books.title FROM books');
 });
 
 it('narrows the selection to several fields, in the requested order', function (): void {
@@ -51,7 +51,7 @@ it('narrows the selection to several fields, in the requested order', function (
         };
 
     expect(sql($query))->toBe(
-        'SELECT books.title AS `books.title`, books.id AS `books.id` FROM `books`',
+        'SELECT books.title AS books.title, books.id AS books.id FROM books',
     );
 });
 
@@ -66,7 +66,7 @@ it('ignores a fieldset for another table', function (): void {
             use HasQueryBuilder;
         };
 
-    expect(sql($query))->toBe('SELECT '.BOOK_FIELDS.' FROM `books`');
+    expect(sql($query))->toBe('SELECT '.BOOK_FIELDS.' FROM books');
 });
 
 it('leaves the columns of an included relation untouched', function (): void {
@@ -85,7 +85,7 @@ it('leaves the columns of an included relation untouched', function (): void {
         };
 
     expect(sql($query))->toBe(
-        'SELECT books.title AS `books.title`, '.AUTHOR_FIELDS.' FROM `books` '.AUTHOR_JOIN,
+        'SELECT books.title AS books.title, '.AUTHOR_FIELDS.' FROM books '.AUTHOR_JOIN,
     );
 });
 
@@ -105,7 +105,7 @@ it('narrows the selection alongside a filter', function (): void {
         };
 
     expect(sql($query))->toBe(
-        'SELECT books.title AS `books.title` FROM `books` WHERE `books`.`id` = ?',
+        'SELECT books.title AS books.title FROM books WHERE books.id = ?',
     );
     expect($query->bindings)->toBe(['1']);
 });
@@ -121,7 +121,7 @@ it('reads the fields parameter name from the config', function (): void {
             use HasQueryBuilder;
         };
 
-    expect(sql($query))->toBe('SELECT books.title AS `books.title` FROM `books`');
+    expect(sql($query))->toBe('SELECT books.title AS books.title FROM books');
 });
 
 it('rejects a field that was not allowed', function (): void {
@@ -158,7 +158,7 @@ it('ignores a field that was not allowed when strict mode is off', function (): 
             use HasQueryBuilder;
         };
 
-    expect(sql($query))->toBe('SELECT books.title AS `books.title` FROM `books`');
+    expect(sql($query))->toBe('SELECT books.title AS books.title FROM books');
 });
 
 it('selects every column when no requested field could be applied', function (): void {
@@ -172,5 +172,5 @@ it('selects every column when no requested field could be applied', function ():
             use HasQueryBuilder;
         };
 
-    expect(sql($query))->toBe('SELECT '.BOOK_FIELDS.' FROM `books`');
+    expect(sql($query))->toBe('SELECT '.BOOK_FIELDS.' FROM books');
 });

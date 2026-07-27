@@ -20,7 +20,7 @@ it('loads nothing when the request has no includes', function (): void {
             use HasQueryBuilder;
         };
 
-    expect(sql($query))->toBe('SELECT '.BOOK_FIELDS.' FROM `books`');
+    expect(sql($query))->toBe('SELECT '.BOOK_FIELDS.' FROM books');
 });
 
 it('eager loads a relation', function (): void {
@@ -35,7 +35,7 @@ it('eager loads a relation', function (): void {
         };
 
     expect(sql($query))->toBe(
-        'SELECT '.BOOK_FIELDS.', '.AUTHOR_FIELDS.' FROM `books` '.AUTHOR_JOIN,
+        'SELECT '.BOOK_FIELDS.', '.AUTHOR_FIELDS.' FROM books '.AUTHOR_JOIN,
     );
 });
 
@@ -51,7 +51,7 @@ it('eager loads a relation exposed under another name', function (): void {
         };
 
     expect(sql($query))->toBe(
-        'SELECT '.BOOK_FIELDS.', '.AUTHOR_FIELDS.' FROM `books` '.AUTHOR_JOIN,
+        'SELECT '.BOOK_FIELDS.', '.AUTHOR_FIELDS.' FROM books '.AUTHOR_JOIN,
     );
 });
 
@@ -69,10 +69,10 @@ it('eager loads several relations', function (): void {
 
     expect(sql($query))->toBe(implode(' ', [
         'SELECT '.BOOK_FIELDS.', '.AUTHOR_FIELDS.',',
-        'author_books.id AS `author.books.id`,',
-        'author_books.title AS `author.books.title`,',
-        'author_books.author_id AS `author.books.author_id`',
-        'FROM `books`',
+        'author_books.id AS author.books.id,',
+        'author_books.title AS author.books.title,',
+        'author_books.author_id AS author.books.author_id',
+        'FROM books',
         AUTHOR_JOIN,
         'LEFT JOIN books AS author_books ON author_books.author_id = authors.id',
     ]));
@@ -102,6 +102,6 @@ it('ignores an include that was not allowed when strict mode is off', function (
         };
 
     expect(sql($query))->toBe(
-        'SELECT '.BOOK_FIELDS.', '.AUTHOR_FIELDS.' FROM `books` '.AUTHOR_JOIN,
+        'SELECT '.BOOK_FIELDS.', '.AUTHOR_FIELDS.' FROM books '.AUTHOR_JOIN,
     );
 });

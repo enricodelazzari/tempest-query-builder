@@ -30,7 +30,7 @@ it('leaves the query untouched when the request has no filters', function (): vo
             use HasQueryBuilder;
         };
 
-    expect(sql($query))->toBe('SELECT '.BOOK_FIELDS.' FROM `books`');
+    expect(sql($query))->toBe('SELECT '.BOOK_FIELDS.' FROM books');
     expect($query->bindings)->toBe([]);
 });
 
@@ -45,7 +45,7 @@ it('applies an exact filter', function (): void {
             use HasQueryBuilder;
         };
 
-    expect(sql($query))->toBe('SELECT '.BOOK_FIELDS.' FROM `books` WHERE `books`.`id` = ?');
+    expect(sql($query))->toBe('SELECT '.BOOK_FIELDS.' FROM books WHERE books.id = ?');
     expect($query->bindings)->toBe(['1']);
 });
 
@@ -60,7 +60,7 @@ it('applies an exact filter with comma separated values', function (): void {
             use HasQueryBuilder;
         };
 
-    expect(sql($query))->toBe('SELECT '.BOOK_FIELDS.' FROM `books` WHERE `books`.`id` IN (?,?)');
+    expect(sql($query))->toBe('SELECT '.BOOK_FIELDS.' FROM books WHERE books.id IN (?,?)');
     expect($query->bindings)->toBe(['1', '2']);
 });
 
@@ -75,7 +75,7 @@ it('applies an exact filter with array syntax', function (): void {
             use HasQueryBuilder;
         };
 
-    expect(sql($query))->toBe('SELECT '.BOOK_FIELDS.' FROM `books` WHERE `books`.`id` IN (?,?)');
+    expect(sql($query))->toBe('SELECT '.BOOK_FIELDS.' FROM books WHERE books.id IN (?,?)');
     expect($query->bindings)->toBe(['1', '2']);
 });
 
@@ -91,7 +91,7 @@ it('applies several filters at once', function (): void {
             use HasQueryBuilder;
         };
 
-    expect(sql($query))->toBe('SELECT '.BOOK_FIELDS.' FROM `books` WHERE `books`.`id` = ? AND `books`.`title` = ?');
+    expect(sql($query))->toBe('SELECT '.BOOK_FIELDS.' FROM books WHERE books.id = ? AND books.title = ?');
     expect($query->bindings)->toBe(['1', 'tempest']);
 });
 
@@ -106,7 +106,7 @@ it('applies a partial filter', function (): void {
             use HasQueryBuilder;
         };
 
-    expect(sql($query))->toBe('SELECT '.BOOK_FIELDS.' FROM `books` WHERE `books`.`title` LIKE ?');
+    expect(sql($query))->toBe('SELECT '.BOOK_FIELDS.' FROM books WHERE books.title LIKE ?');
     expect($query->bindings)->toBe(['%tempest%']);
 });
 
@@ -121,7 +121,7 @@ it('combines several values of a partial filter with or', function (): void {
             use HasQueryBuilder;
         };
 
-    expect(sql($query))->toBe('SELECT '.BOOK_FIELDS.' FROM `books` WHERE (`books`.`title` LIKE ? OR `books`.`title` LIKE ?)');
+    expect(sql($query))->toBe('SELECT '.BOOK_FIELDS.' FROM books WHERE (books.title LIKE ? OR books.title LIKE ?)');
     expect($query->bindings)->toBe(['%tempest%', '%laravel%']);
 });
 
@@ -164,7 +164,7 @@ it('applies an operator filter', function (): void {
             use HasQueryBuilder;
         };
 
-    expect(sql($query))->toBe('SELECT '.BOOK_FIELDS.' FROM `books` WHERE `books`.`id` > ?');
+    expect(sql($query))->toBe('SELECT '.BOOK_FIELDS.' FROM books WHERE books.id > ?');
     expect($query->bindings)->toBe(['10']);
 });
 
@@ -194,7 +194,7 @@ it('filters on a column that differs from the exposed name', function (): void {
             use HasQueryBuilder;
         };
 
-    expect(sql($query))->toBe('SELECT '.BOOK_FIELDS.' FROM `books` WHERE `books`.`author_id` = ?');
+    expect(sql($query))->toBe('SELECT '.BOOK_FIELDS.' FROM books WHERE books.author_id = ?');
     expect($query->bindings)->toBe(['1']);
 });
 
@@ -209,7 +209,7 @@ it('splits values on a filter specific delimiter', function (): void {
             use HasQueryBuilder;
         };
 
-    expect(sql($query))->toBe('SELECT '.BOOK_FIELDS.' FROM `books` WHERE `books`.`id` IN (?,?)');
+    expect(sql($query))->toBe('SELECT '.BOOK_FIELDS.' FROM books WHERE books.id IN (?,?)');
     expect($query->bindings)->toBe(['1', '2']);
 });
 
@@ -222,7 +222,7 @@ it('falls back to the default value of a filter', function (): void {
             use HasQueryBuilder;
         };
 
-    expect(sql($query))->toBe('SELECT '.BOOK_FIELDS.' FROM `books` WHERE `books`.`title` = ?');
+    expect(sql($query))->toBe('SELECT '.BOOK_FIELDS.' FROM books WHERE books.title = ?');
     expect($query->bindings)->toBe(['tempest']);
 });
 
@@ -251,7 +251,7 @@ it('ignores empty filter values', function (): void {
             use HasQueryBuilder;
         };
 
-    expect(sql($query))->toBe('SELECT '.BOOK_FIELDS.' FROM `books`');
+    expect(sql($query))->toBe('SELECT '.BOOK_FIELDS.' FROM books');
     expect($query->bindings)->toBe([]);
 });
 
@@ -278,7 +278,7 @@ it('ignores a filter that was not allowed when strict mode is off', function ():
             use HasQueryBuilder;
         };
 
-    expect(sql($query))->toBe('SELECT '.BOOK_FIELDS.' FROM `books` WHERE `books`.`title` = ?');
+    expect(sql($query))->toBe('SELECT '.BOOK_FIELDS.' FROM books WHERE books.title = ?');
     expect($query->bindings)->toBe(['tempest']);
 });
 
@@ -317,7 +317,7 @@ it('drops a value the filter refuses to act on', function (): void {
             use HasQueryBuilder;
         };
 
-    expect(sql($query))->toBe('SELECT '.BOOK_FIELDS.' FROM `books` WHERE `books`.`title` = ?');
+    expect(sql($query))->toBe('SELECT '.BOOK_FIELDS.' FROM books WHERE books.title = ?');
     expect($query->bindings)->toBe(['tempest']);
 });
 
@@ -332,7 +332,7 @@ it('does not apply a filter whose values were all refused', function (): void {
             use HasQueryBuilder;
         };
 
-    expect(sql($query))->toBe('SELECT '.BOOK_FIELDS.' FROM `books`');
+    expect(sql($query))->toBe('SELECT '.BOOK_FIELDS.' FROM books');
     expect($query->bindings)->toBe([]);
 });
 
@@ -347,7 +347,7 @@ it('matches null when a nullable filter is asked for with no value', function ()
             use HasQueryBuilder;
         };
 
-    expect(sql($query))->toBe('SELECT '.BOOK_FIELDS.' FROM `books` WHERE `books`.`title` IS NULL');
+    expect(sql($query))->toBe('SELECT '.BOOK_FIELDS.' FROM books WHERE books.title IS NULL');
     expect($query->bindings)->toBe([]);
 });
 
@@ -360,7 +360,7 @@ it('leaves a nullable filter alone when the request does not ask for it', functi
             use HasQueryBuilder;
         };
 
-    expect(sql($query))->toBe('SELECT '.BOOK_FIELDS.' FROM `books`');
+    expect(sql($query))->toBe('SELECT '.BOOK_FIELDS.' FROM books');
 });
 
 it('still filters normally when a nullable filter is given a value', function (): void {
@@ -374,7 +374,7 @@ it('still filters normally when a nullable filter is given a value', function ()
             use HasQueryBuilder;
         };
 
-    expect(sql($query))->toBe('SELECT '.BOOK_FIELDS.' FROM `books` WHERE `books`.`title` = ?');
+    expect(sql($query))->toBe('SELECT '.BOOK_FIELDS.' FROM books WHERE books.title = ?');
     expect($query->bindings)->toBe(['tempest']);
 });
 
@@ -389,7 +389,7 @@ it('applies a query scope built from the request value', function (): void {
             use HasQueryBuilder;
         };
 
-    expect(sql($query))->toBe('SELECT '.BOOK_FIELDS.' FROM `books` WHERE `books`.`title` LIKE ?');
+    expect(sql($query))->toBe('SELECT '.BOOK_FIELDS.' FROM books WHERE books.title LIKE ?');
     expect($query->bindings)->toBe(['temp%']);
 });
 
@@ -404,7 +404,7 @@ it('spreads several values onto the scope constructor', function (): void {
             use HasQueryBuilder;
         };
 
-    expect(sql($query))->toBe('SELECT '.BOOK_FIELDS.' FROM `books` WHERE `books`.`id` BETWEEN ? AND ?');
+    expect(sql($query))->toBe('SELECT '.BOOK_FIELDS.' FROM books WHERE books.id BETWEEN ? AND ?');
     expect($query->bindings)->toBe(['1', '10']);
 });
 
@@ -425,9 +425,9 @@ it('joins a multi-value partial filter to the filter before it with and', functi
         };
 
     expect(sql($query))->toBe(implode(' ', [
-        'SELECT '.BOOK_FIELDS.' FROM `books`',
-        'WHERE `books`.`id` = ?',
-        'AND (`books`.`title` LIKE ? OR `books`.`title` LIKE ?)',
+        'SELECT '.BOOK_FIELDS.' FROM books',
+        'WHERE books.id = ?',
+        'AND (books.title LIKE ? OR books.title LIKE ?)',
     ]));
     expect($query->bindings)->toBe(['1', '%a%', '%b%']);
 });

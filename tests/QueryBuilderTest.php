@@ -33,7 +33,7 @@ it('builds a select query for the model', function (): void {
             use HasQueryBuilder;
         };
 
-    expect(sql($query))->toBe('SELECT '.BOOK_FIELDS.' FROM `books`');
+    expect(sql($query))->toBe('SELECT '.BOOK_FIELDS.' FROM books');
     expect($query->bindings)->toBe([]);
 });
 
@@ -59,7 +59,7 @@ it('forwards calls to the underlying query builder', function (): void {
     $result = $query->whereField('id', 1);
 
     expect($result)->toBe($query);
-    expect(sql($query))->toBe('SELECT '.BOOK_FIELDS.' FROM `books` WHERE `books`.`id` = ?');
+    expect(sql($query))->toBe('SELECT '.BOOK_FIELDS.' FROM books WHERE books.id = ?');
     expect($query->bindings)->toBe([1]);
 });
 

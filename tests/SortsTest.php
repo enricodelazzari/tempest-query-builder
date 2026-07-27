@@ -21,7 +21,7 @@ it('leaves the query unordered when nothing is requested', function (): void {
             use HasQueryBuilder;
         };
 
-    expect(sql($query))->toBe('SELECT '.BOOK_FIELDS.' FROM `books`');
+    expect(sql($query))->toBe('SELECT '.BOOK_FIELDS.' FROM books');
 });
 
 it('sorts ascending by default', function (): void {
@@ -35,7 +35,7 @@ it('sorts ascending by default', function (): void {
             use HasQueryBuilder;
         };
 
-    expect(sql($query))->toBe('SELECT '.BOOK_FIELDS.' FROM `books` ORDER BY `books`.`title` ASC');
+    expect(sql($query))->toBe('SELECT '.BOOK_FIELDS.' FROM books ORDER BY books.title ASC');
 });
 
 it('sorts descending when the name is prefixed with a hyphen', function (): void {
@@ -49,7 +49,7 @@ it('sorts descending when the name is prefixed with a hyphen', function (): void
             use HasQueryBuilder;
         };
 
-    expect(sql($query))->toBe('SELECT '.BOOK_FIELDS.' FROM `books` ORDER BY `books`.`title` DESC');
+    expect(sql($query))->toBe('SELECT '.BOOK_FIELDS.' FROM books ORDER BY books.title DESC');
 });
 
 it('sorts by several columns in the requested order', function (): void {
@@ -64,7 +64,7 @@ it('sorts by several columns in the requested order', function (): void {
             use HasQueryBuilder;
         };
 
-    expect(sql($query))->toBe('SELECT '.BOOK_FIELDS.' FROM `books` ORDER BY `books`.`title` DESC, `books`.`id` ASC');
+    expect(sql($query))->toBe('SELECT '.BOOK_FIELDS.' FROM books ORDER BY books.title DESC, books.id ASC');
 });
 
 it('sorts on a column that differs from the exposed name', function (): void {
@@ -78,7 +78,7 @@ it('sorts on a column that differs from the exposed name', function (): void {
             use HasQueryBuilder;
         };
 
-    expect(sql($query))->toBe('SELECT '.BOOK_FIELDS.' FROM `books` ORDER BY `books`.`author_id` ASC');
+    expect(sql($query))->toBe('SELECT '.BOOK_FIELDS.' FROM books ORDER BY books.author_id ASC');
 });
 
 it('applies the default sort when nothing is requested', function (): void {
@@ -90,7 +90,7 @@ it('applies the default sort when nothing is requested', function (): void {
             use HasQueryBuilder;
         };
 
-    expect(sql($query))->toBe('SELECT '.BOOK_FIELDS.' FROM `books` ORDER BY `books`.`title` DESC');
+    expect(sql($query))->toBe('SELECT '.BOOK_FIELDS.' FROM books ORDER BY books.title DESC');
 });
 
 it('applies several default sorts', function (): void {
@@ -103,7 +103,7 @@ it('applies several default sorts', function (): void {
             use HasQueryBuilder;
         };
 
-    expect(sql($query))->toBe('SELECT '.BOOK_FIELDS.' FROM `books` ORDER BY `books`.`title` ASC, `books`.`id` DESC');
+    expect(sql($query))->toBe('SELECT '.BOOK_FIELDS.' FROM books ORDER BY books.title ASC, books.id DESC');
 });
 
 it('lets the request override the default sort', function (): void {
@@ -118,7 +118,7 @@ it('lets the request override the default sort', function (): void {
             use HasQueryBuilder;
         };
 
-    expect(sql($query))->toBe('SELECT '.BOOK_FIELDS.' FROM `books` ORDER BY `books`.`id` ASC');
+    expect(sql($query))->toBe('SELECT '.BOOK_FIELDS.' FROM books ORDER BY books.id ASC');
 });
 
 it('falls back to the default sort when no requested sort could be applied', function (): void {
@@ -133,7 +133,7 @@ it('falls back to the default sort when no requested sort could be applied', fun
             use HasQueryBuilder;
         };
 
-    expect(sql($query))->toBe('SELECT '.BOOK_FIELDS.' FROM `books` ORDER BY `books`.`title` DESC');
+    expect(sql($query))->toBe('SELECT '.BOOK_FIELDS.' FROM books ORDER BY books.title DESC');
 });
 
 it('rejects a sort that was not allowed', function (): void {
@@ -159,7 +159,7 @@ it('ignores a sort that was not allowed when strict mode is off', function (): v
             use HasQueryBuilder;
         };
 
-    expect(sql($query))->toBe('SELECT '.BOOK_FIELDS.' FROM `books` ORDER BY `books`.`title` ASC');
+    expect(sql($query))->toBe('SELECT '.BOOK_FIELDS.' FROM books ORDER BY books.title ASC');
 });
 
 it('rejects a sort whose direction prefix is malformed', function (): void {

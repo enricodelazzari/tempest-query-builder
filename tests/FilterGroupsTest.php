@@ -25,7 +25,7 @@ it('leaves the query alone when the group is not asked for', function (): void {
             use HasQueryBuilder;
         };
 
-    expect(sql($query))->toBe('SELECT '.BOOK_FIELDS.' FROM `books`');
+    expect(sql($query))->toBe('SELECT '.BOOK_FIELDS.' FROM books');
 });
 
 it('hands one value to every member, joined with or', function (): void {
@@ -42,7 +42,7 @@ it('hands one value to every member, joined with or', function (): void {
         };
 
     expect(sql($query))->toBe(
-        'SELECT '.BOOK_FIELDS.' FROM `books` WHERE (`books`.`title` LIKE ? OR `books`.`author_id` = ?)',
+        'SELECT '.BOOK_FIELDS.' FROM books WHERE (books.title LIKE ? OR books.author_id = ?)',
     );
     expect($query->bindings)->toBe(['%John%', 'John']);
 });
@@ -61,7 +61,7 @@ it('joins the members with and when asked to', function (): void {
         };
 
     expect(sql($query))->toBe(
-        'SELECT '.BOOK_FIELDS.' FROM `books` WHERE (`books`.`title` LIKE ? AND `books`.`author_id` = ?)',
+        'SELECT '.BOOK_FIELDS.' FROM books WHERE (books.title LIKE ? AND books.author_id = ?)',
     );
     expect($query->bindings)->toBe(['%John%', 'John']);
 });
@@ -81,9 +81,9 @@ it('joins a group to a plain filter with and', function (): void {
         };
 
     expect(sql($query))->toBe(implode(' ', [
-        'SELECT '.BOOK_FIELDS.' FROM `books`',
-        'WHERE `books`.`id` = ?',
-        'AND (`books`.`title` LIKE ? OR `books`.`author_id` = ?)',
+        'SELECT '.BOOK_FIELDS.' FROM books',
+        'WHERE books.id = ?',
+        'AND (books.title LIKE ? OR books.author_id = ?)',
     ]));
     expect($query->bindings)->toBe(['1', '%John%', 'John']);
 });
@@ -105,9 +105,9 @@ it('joins several groups to each other with and', function (): void {
         };
 
     expect(sql($query))->toBe(implode(' ', [
-        'SELECT '.BOOK_FIELDS.' FROM `books`',
-        'WHERE (`books`.`title` LIKE ? OR `books`.`author_id` = ?)',
-        'AND `books`.`title` LIKE ?',
+        'SELECT '.BOOK_FIELDS.' FROM books',
+        'WHERE (books.title LIKE ? OR books.author_id = ?)',
+        'AND books.title LIKE ?',
     ]));
     expect($query->bindings)->toBe(['%John%', 'John', '%ist%']);
 });
@@ -124,7 +124,7 @@ it('lets a member filter on a column of its own naming', function (): void {
             use HasQueryBuilder;
         };
 
-    expect(sql($query))->toBe('SELECT '.BOOK_FIELDS.' FROM `books` WHERE `books`.`author_id` = ?');
+    expect(sql($query))->toBe('SELECT '.BOOK_FIELDS.' FROM books WHERE books.author_id = ?');
     expect($query->bindings)->toBe(['1']);
 });
 
@@ -141,7 +141,7 @@ it('drops a member whose values it refuses to act on', function (): void {
             use HasQueryBuilder;
         };
 
-    expect(sql($query))->toBe('SELECT '.BOOK_FIELDS.' FROM `books` WHERE `books`.`title` LIKE ?');
+    expect(sql($query))->toBe('SELECT '.BOOK_FIELDS.' FROM books WHERE books.title LIKE ?');
     expect($query->bindings)->toBe(['%John%']);
 });
 
@@ -158,7 +158,7 @@ it('leaves the query alone when every member refused the value', function (): vo
             use HasQueryBuilder;
         };
 
-    expect(sql($query))->toBe('SELECT '.BOOK_FIELDS.' FROM `books`');
+    expect(sql($query))->toBe('SELECT '.BOOK_FIELDS.' FROM books');
 });
 
 it('rejects a filter that is neither allowed nor a group', function (): void {

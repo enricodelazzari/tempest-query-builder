@@ -32,7 +32,7 @@ it('filters with a closure', function (): void {
             use HasQueryBuilder;
         };
 
-    expect(sql($query))->toBe('SELECT '.BOOK_FIELDS.' FROM `books` WHERE `books`.`id` > ?');
+    expect(sql($query))->toBe('SELECT '.BOOK_FIELDS.' FROM books WHERE books.id > ?');
     expect($query->bindings)->toBe(['100']);
 });
 
@@ -49,7 +49,7 @@ it('gives the closure the column the attribute resolved', function (): void {
             use HasQueryBuilder;
         };
 
-    expect(sql($query))->toBe('SELECT '.BOOK_FIELDS.' FROM `books` WHERE `books`.`author_id` = ?');
+    expect(sql($query))->toBe('SELECT '.BOOK_FIELDS.' FROM books WHERE books.author_id = ?');
     expect($query->bindings)->toBe(['1']);
 });
 
@@ -69,7 +69,7 @@ it('filters with a closure inside a group', function (): void {
         };
 
     expect(sql($query))->toBe(
-        'SELECT '.BOOK_FIELDS.' FROM `books` WHERE (`books`.`title` LIKE ? OR `books`.`author_id` = ?)',
+        'SELECT '.BOOK_FIELDS.' FROM books WHERE (books.title LIKE ? OR books.author_id = ?)',
     );
     expect($query->bindings)->toBe(['%John%', 'John']);
 });
@@ -87,7 +87,7 @@ it('sorts with a closure', function (): void {
             use HasQueryBuilder;
         };
 
-    expect(sql($query))->toBe('SELECT '.BOOK_FIELDS.' FROM `books` ORDER BY LENGTH(title) DESC');
+    expect(sql($query))->toBe('SELECT '.BOOK_FIELDS.' FROM books ORDER BY LENGTH(title) DESC');
 });
 
 it('includes with a closure', function (): void {
@@ -104,7 +104,7 @@ it('includes with a closure', function (): void {
         };
 
     expect(sql($query))->toBe(
-        'SELECT '.BOOK_FIELDS.', '.AUTHOR_FIELDS.' FROM `books` '.AUTHOR_JOIN,
+        'SELECT '.BOOK_FIELDS.', '.AUTHOR_FIELDS.' FROM books '.AUTHOR_JOIN,
     );
 });
 
@@ -119,7 +119,7 @@ it('accepts a first class callable', function (): void {
             use HasQueryBuilder;
         };
 
-    expect(sql($query))->toBe('SELECT '.BOOK_FIELDS.' FROM `books` WHERE `books`.`title` = ?');
+    expect(sql($query))->toBe('SELECT '.BOOK_FIELDS.' FROM books WHERE books.title = ?');
     expect($query->bindings)->toBe(['tempest']);
 });
 
