@@ -98,15 +98,22 @@ These filters ship with the package:
 
 ```php
 #[AllowedFilter(
-    name: 'author',        // name exposed in the query string
+    name: 'author',          // name exposed in the query string
     filter: new ExactFilter,
-    alias: 'author_id',    // column to filter on, when it differs from the name
-    delimiter: '|',        // how to split several values, defaults to a comma
-    default: '1',          // applied when the request has no such filter
+    alias: 'author_id',      // column to filter on, when it differs from the name
+    delimiter: '|',          // how to split several values, defaults to a comma
+    default: '1',            // applied when the request has no such filter
+    ignore: ['all'],         // values the filter refuses to act on
+    nullable: true,          // let an empty value match `NULL`
 )]
 ```
 
-Empty values are ignored, so `?filter[title]=` leaves the query untouched.
+Empty values are ignored, so `?filter[title]=` leaves the query untouched — unless the filter is `nullable`, in which
+case an empty value selects the rows whose column is null. That is applied as `IS NULL` whatever the filter strategy is,
+since a `LIKE` against nothing has no useful meaning.
+
+Values listed in `ignore` are dropped from what the request asked for, so `?filter[title]=all,tempest` with
+`ignore: ['all']` filters on `tempest` alone. When every value asked for is ignored, the filter is not applied at all.
 
 ### Filtering on a relation
 

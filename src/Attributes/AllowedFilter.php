@@ -16,6 +16,7 @@ final readonly class AllowedFilter implements Allowed
 {
     /**
      * @param  non-empty-string|null  $delimiter
+     * @param  string[]  $ignore
      */
     public function __construct(
         /**
@@ -45,6 +46,20 @@ final readonly class AllowedFilter implements Allowed
          * @var string|string[]|null
          */
         public string|array|null $default = null,
+
+        /**
+         * Values the filter refuses to act on. They are dropped from what the
+         * request asked for; if nothing is left, the filter is not applied.
+         *
+         * @var string[]
+         */
+        public array $ignore = [],
+
+        /**
+         * Let an empty value match `NULL`, so `?filter[name]=` selects the rows
+         * whose column is null instead of leaving the query untouched.
+         */
+        public bool $nullable = false,
     ) {}
 
     public function column(): string

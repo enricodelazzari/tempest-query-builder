@@ -301,3 +301,75 @@ it('reports that nothing is allowed when the query builder allows no filters', f
             use HasQueryBuilder;
         };
 })->throws(InvalidFilterQuery::class, 'Filter `secret` is not allowed. Allowed filters: none.');
+
+it('drops a value the filter refuses to act on', function (): void {
+    $request = RequestFactory::make(['filter' => ['title' => 'forbidden,tempest']]);
+
+    $query = new
+        #[Model(Book::class)]
+        #[AllowedFilter('title', ignore: ['forbidden'])]
+        class($request)
+        {
+            use HasQueryBuilder;
+        };
+
+    expect(sql($query))->toBe('SELECT '.BOOK_FIELDS.' FROM `books` WHERE `books`.`title` = ?');
+    expect($query->bindings)->toBe(['tempest']);
+});
+
+it('does not apply a filter whose values were all refused', function (): void {
+    $request = RequestFactory::make(['filter' => ['title' => 'forbidden,banned']]);
+
+    $query = new
+        #[Model(Book::class)]
+        #[AllowedFilter('title', ignore: ['forbidden', 'banned'])]
+        class($request)
+        {
+            use HasQueryBuilder;
+        };
+
+    expect(sql($query))->toBe('SELECT '.BOOK_FIELDS.' FROM `books`');
+    expect($query->bindings)->toBe([]);
+});
+
+it('matches null when a nullable filter is asked for with no value', function (): void {
+    $request = RequestFactory::make(['filter' => ['title' => '']]);
+
+    $query = new
+        #[Model(Book::class)]
+        #[AllowedFilter('title', nullable: true)]
+        class($request)
+        {
+            use HasQueryBuilder;
+        };
+
+    expect(sql($query))->toBe('SELECT '.BOOK_FIELDS.' FROM `books` WHERE `books`.`title` IS NULL');
+    expect($query->bindings)->toBe([]);
+});
+
+it('leaves a nullable filter alone when the request does not ask for it', function (): void {
+    $query = new
+        #[Model(Book::class)]
+        #[AllowedFilter('title', nullable: true)]
+        class(RequestFactory::make())
+        {
+            use HasQueryBuilder;
+        };
+
+    expect(sql($query))->toBe('SELECT '.BOOK_FIELDS.' FROM `books`');
+});
+
+it('still filters normally when a nullable filter is given a value', function (): void {
+    $request = RequestFactory::make(['filter' => ['title' => 'tempest']]);
+
+    $query = new
+        #[Model(Book::class)]
+        #[AllowedFilter('title', nullable: true)]
+        class($request)
+        {
+            use HasQueryBuilder;
+        };
+
+    expect(sql($query))->toBe('SELECT '.BOOK_FIELDS.' FROM `books` WHERE `books`.`title` = ?');
+    expect($query->bindings)->toBe(['tempest']);
+});

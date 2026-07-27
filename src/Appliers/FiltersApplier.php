@@ -18,11 +18,26 @@ final class FiltersApplier extends Applier
         $this->guard(array_keys($requested), $allowed, InvalidFilterQuery::class);
 
         foreach ($allowed as $filter) {
+            $asked = array_key_exists($filter->name, $requested);
+
             $values = $this->split(
-                $requested[$filter->name] ?? $filter->default ?? '',
+                ($asked ? $requested[$filter->name] : $filter->default) ?? '',
                 $filter->delimiter,
             );
 
+            if ($values === []) {
+                // An empty value is a request to match null, but only for a
+                // filter that opted into it.
+                if ($asked && $filter->nullable) {
+                    $query->whereNull($filter->column());
+                }
+
+                continue;
+            }
+
+            $values = array_values(array_diff($values, $filter->ignore));
+
+            // Every value asked for was one the filter refuses to act on.
             if ($values === []) {
                 continue;
             }
