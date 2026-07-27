@@ -5,16 +5,20 @@ declare(strict_types=1);
 use EnricoDeLazzari\QueryBuilder\Attributes\AllowedFilter;
 use EnricoDeLazzari\QueryBuilder\Attributes\Model;
 use EnricoDeLazzari\QueryBuilder\Exceptions\InvalidFilterQuery;
+use EnricoDeLazzari\QueryBuilder\Exceptions\ScopeWasInvalid;
 use EnricoDeLazzari\QueryBuilder\Filters\BeginsWithFilter;
 use EnricoDeLazzari\QueryBuilder\Filters\EndsWithFilter;
 use EnricoDeLazzari\QueryBuilder\Filters\ExactFilter;
 use EnricoDeLazzari\QueryBuilder\Filters\OperatorFilter;
 use EnricoDeLazzari\QueryBuilder\Filters\PartialFilter;
 use EnricoDeLazzari\QueryBuilder\Filters\RelationFilter;
+use EnricoDeLazzari\QueryBuilder\Filters\ScopeFilter;
 use EnricoDeLazzari\QueryBuilder\HasQueryBuilder;
 use EnricoDeLazzari\QueryBuilder\QueryBuilderConfig;
 use EnricoDeLazzari\QueryBuilder\Tests\Support\Factories\RequestFactory;
 use EnricoDeLazzari\QueryBuilder\Tests\Support\Models\Book;
+use EnricoDeLazzari\QueryBuilder\Tests\Support\Scopes\IdBetween;
+use EnricoDeLazzari\QueryBuilder\Tests\Support\Scopes\TitleStartsWith;
 use Tempest\Database\Builder\WhereOperator;
 
 it('leaves the query untouched when the request has no filters', function (): void {
@@ -373,3 +377,37 @@ it('still filters normally when a nullable filter is given a value', function ()
     expect(sql($query))->toBe('SELECT '.BOOK_FIELDS.' FROM `books` WHERE `books`.`title` = ?');
     expect($query->bindings)->toBe(['tempest']);
 });
+
+it('applies a query scope built from the request value', function (): void {
+    $request = RequestFactory::make(['filter' => ['title' => 'temp']]);
+
+    $query = new
+        #[Model(Book::class)]
+        #[AllowedFilter('title', new ScopeFilter(TitleStartsWith::class))]
+        class($request)
+        {
+            use HasQueryBuilder;
+        };
+
+    expect(sql($query))->toBe('SELECT '.BOOK_FIELDS.' FROM `books` WHERE `books`.`title` LIKE ?');
+    expect($query->bindings)->toBe(['temp%']);
+});
+
+it('spreads several values onto the scope constructor', function (): void {
+    $request = RequestFactory::make(['filter' => ['id' => '1,10']]);
+
+    $query = new
+        #[Model(Book::class)]
+        #[AllowedFilter('id', new ScopeFilter(IdBetween::class))]
+        class($request)
+        {
+            use HasQueryBuilder;
+        };
+
+    expect(sql($query))->toBe('SELECT '.BOOK_FIELDS.' FROM `books` WHERE `books`.`id` BETWEEN ? AND ?');
+    expect($query->bindings)->toBe(['1', '10']);
+});
+
+it('refuses a scope filter pointed at something that is not a query scope', function (): void {
+    new ScopeFilter(Book::class);
+})->throws(ScopeWasInvalid::class);

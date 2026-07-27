@@ -93,6 +93,7 @@ These filters ship with the package:
 | `EndsWithFilter`   | `column LIKE '%value'`                                                           |
 | `OperatorFilter`   | Any Tempest `WhereOperator`, e.g. `new OperatorFilter(WhereOperator::GREATER_THAN)` |
 | `RelationFilter`   | `WHERE EXISTS` against a related model                                           |
+| `ScopeFilter`      | Hands over to one of Tempest's `QueryScope` implementations                       |
 
 `AllowedFilter` also accepts:
 
@@ -132,6 +133,46 @@ final class BookQueryBuilder
 ```http
 GET /books?filter[author]=tolkien
 ```
+
+### Filtering through a query scope
+
+`ScopeFilter` hands the request over to one of Tempest's query scopes. A scope carries its values on its constructor
+rather than receiving them when it runs, so that is where the request value goes:
+
+```php
+use Tempest\Database\Builder\QueryBuilders\QueryScope;
+use Tempest\Database\Builder\QueryBuilders\SupportsWhereStatements;
+use Tempest\Database\Builder\WhereOperator;
+
+final readonly class PublishedBetween implements QueryScope
+{
+    public function __construct(
+        private string $from,
+        private string $to,
+    ) {}
+
+    public function apply(SupportsWhereStatements $builder): void
+    {
+        $builder->whereField('published_at', [$this->from, $this->to], WhereOperator::BETWEEN);
+    }
+}
+```
+
+```php
+#[Model(Book::class)]
+#[AllowedFilter('published_between', new ScopeFilter(PublishedBetween::class))]
+final class BookQueryBuilder
+{
+    use HasQueryBuilder;
+}
+```
+
+```http
+GET /books?filter[published_between]=2024-01-01,2024-12-31
+```
+
+Several values are spread over the constructor, so the scope above receives both dates. The scope decides which column
+it touches, which means the name the filter is exposed under — and any `alias` on it — has no bearing here.
 
 ### Writing your own filter
 
