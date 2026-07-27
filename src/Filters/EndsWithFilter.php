@@ -8,28 +8,22 @@ use Tempest\Database\Builder\QueryBuilders\SelectQueryBuilder;
 use Tempest\Database\Builder\QueryBuilders\WhereGroupBuilder;
 
 /**
- * Matches a column against a `LIKE %value%` pattern. Several values are combined
- * with `OR` inside a group, so `?filter[title]=a,b` matches either of them.
+ * Matches a column against a `LIKE %value` pattern.
  */
-final class PartialFilter implements Filter
+final class EndsWithFilter implements Filter
 {
     public function apply(SelectQueryBuilder $query, string $column, string|array $value): void
     {
         if (! is_array($value)) {
-            $query->whereLike($column, $this->pattern($value));
+            $query->whereLike($column, "%{$value}");
 
             return;
         }
 
         $query->whereGroup(function (WhereGroupBuilder $group) use ($column, $value): void {
             foreach ($value as $item) {
-                $group->orWhereLike($column, $this->pattern($item));
+                $group->orWhereLike($column, "%{$item}");
             }
         });
-    }
-
-    private function pattern(string $value): string
-    {
-        return "%{$value}%";
     }
 }

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <phpunit
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/10.3/phpunit.xsd"
+    xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/12.5/phpunit.xsd"
     backupGlobals="false"
     bootstrap="vendor/autoload.php"
     colors="true"
@@ -20,6 +20,11 @@
             <directory>tests</directory>
         </testsuite>
     </testsuites>
+    <php>
+        <env name="ENVIRONMENT" value="testing"/>
+        <!-- Throwaway key: the suite only needs a valid one to boot the kernel. -->
+        <env name="SIGNING_KEY" value="Pxz4nLJnxe//A1kIbSIS5P1V7ezCiX8+FKWVBwn6Ueg="/>
+    </php>
     <coverage>
         <report>
             <html outputDirectory="build/coverage"/>
