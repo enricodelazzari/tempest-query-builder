@@ -47,11 +47,15 @@ trait ReadsRequest
     /**
      * Rejects requested names that were not allowed, unless strict mode is off.
      *
-     * @param  string[]  $requested
+     * @param  string[]  $requested  the names to check
      * @param  Allowed[]  $allowed
      * @param  class-string<InvalidQuery>  $exception
+     * @param  string[]|null  $reported  what to name in the error, keyed like
+     *                                   `$requested`, when the two differ —
+     *                                   a sort is checked without its direction
+     *                                   prefix but should be reported with it
      */
-    protected function guard(array $requested, array $allowed, string $exception): void
+    protected function guard(array $requested, array $allowed, string $exception, ?array $reported = null): void
     {
         if (! $this->config->strict) {
             return;
@@ -60,9 +64,16 @@ trait ReadsRequest
         $names = array_map(static fn (Allowed $item): string => $item->name, $allowed);
         $unknown = array_diff($requested, $names);
 
-        if ($unknown !== []) {
-            throw $exception::forNames($unknown, $names);
+        if ($unknown === []) {
+            return;
         }
+
+        $reported ??= $requested;
+
+        throw $exception::forNames(
+            array_map(static fn (int|string $key): string => $reported[$key], array_keys($unknown)),
+            $names,
+        );
     }
 
     /**
