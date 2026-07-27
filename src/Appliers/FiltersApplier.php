@@ -123,7 +123,7 @@ final class FiltersApplier extends Applier
      */
     private function one(array $values): string|array
     {
-        return count($values) === 1 ? $values[0] : $values;
+        return count($values) === 1 ? array_first($values) : $values;
     }
 
     /**

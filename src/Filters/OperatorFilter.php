@@ -24,7 +24,7 @@ final readonly class OperatorFilter implements Filter
             $this->operator->supportsArray() => (array) $value,
             ! $this->operator->requiresValue() => null,
             // Operators taking a single value ignore any extra ones.
-            is_array($value) => $value[0],
+            is_array($value) => array_first($value),
             default => $value,
         }, $this->operator);
     }
