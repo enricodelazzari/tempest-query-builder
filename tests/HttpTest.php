@@ -9,7 +9,7 @@ use EnricoDeLazzari\QueryBuilder\Tests\Support\Models\Book;
 use Tempest\Database\Migrations\CreateMigrationsTable;
 use Tempest\Http\Status;
 
-beforeEach(function () {
+beforeEach(function (): void {
     $this->database->reset(migrate: false);
     $this->database->migrate(
         CreateMigrationsTable::class,
@@ -33,7 +33,7 @@ function titles(array $books): array
     return array_map(static fn (Book $book): string => $book->title, $books);
 }
 
-it('returns every book ordered by the default sort', function () {
+it('returns every book ordered by the default sort', function (): void {
     $books = $this->http
         ->get('/books')
         ->assertOk()
@@ -42,7 +42,7 @@ it('returns every book ordered by the default sort', function () {
     expect(titles($books))->toBe(['Dune', 'The Silmarillion', 'The Hobbit']);
 });
 
-it('filters books through the query string', function () {
+it('filters books through the query string', function (): void {
     $books = $this->http
         ->get('/books', ['filter' => ['title' => 'The']])
         ->assertOk()
@@ -51,7 +51,7 @@ it('filters books through the query string', function () {
     expect(titles($books))->toBe(['The Silmarillion', 'The Hobbit']);
 });
 
-it('sorts books through the query string', function () {
+it('sorts books through the query string', function (): void {
     $books = $this->http
         ->get('/books', ['sort' => 'title'])
         ->assertOk()
@@ -60,7 +60,7 @@ it('sorts books through the query string', function () {
     expect(titles($books))->toBe(['Dune', 'The Hobbit', 'The Silmarillion']);
 });
 
-it('eager loads a relation through the query string', function () {
+it('eager loads a relation through the query string', function (): void {
     $books = $this->http
         ->get('/books', ['include' => 'author', 'filter' => ['title' => 'Dune']])
         ->assertOk()
@@ -69,13 +69,13 @@ it('eager loads a relation through the query string', function () {
     expect($books[0]->author->name)->toBe('Herbert');
 });
 
-it('answers with a bad request when the query asks for something not allowed', function () {
+it('answers with a bad request when the query asks for something not allowed', function (): void {
     $this->http
         ->get('/books', ['filter' => ['secret' => '1']])
         ->assertStatus(Status::BAD_REQUEST);
 });
 
-it('narrows the response through the query string', function () {
+it('narrows the response through the query string', function (): void {
     $books = $this->http
         ->get('/books', [
             'fields' => ['books' => 'title'],
@@ -87,7 +87,7 @@ it('narrows the response through the query string', function () {
     expect(json_encode($books))->toBe('[{"title":"Dune"}]');
 });
 
-it('answers with a bad request when the query asks for a field that was not allowed', function () {
+it('answers with a bad request when the query asks for a field that was not allowed', function (): void {
     $this->http
         ->get('/books', ['fields' => ['books' => 'secret']])
         ->assertStatus(Status::BAD_REQUEST);

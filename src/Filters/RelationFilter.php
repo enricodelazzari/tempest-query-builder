@@ -13,11 +13,11 @@ use Tempest\Database\Builder\QueryBuilders\SelectQueryBuilder;
  * `#[AllowedFilter(name: 'author', alias: 'name', filter: new RelationFilter('author'))]`
  * turns `?filter[author]=tolkien` into `EXISTS (… WHERE authors.name = ?)`.
  */
-final class RelationFilter implements Filter
+final readonly class RelationFilter implements Filter
 {
     public function __construct(
-        private readonly string $relation,
-        private readonly Filter $filter = new ExactFilter,
+        private string $relation,
+        private Filter $filter = new ExactFilter,
     ) {}
 
     public function apply(SelectQueryBuilder $query, string $column, string|array $value): void

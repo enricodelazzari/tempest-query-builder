@@ -11,10 +11,10 @@ use Tempest\Database\Builder\WhereOperator;
  * Compares a column using an arbitrary SQL operator, e.g. `?filter[pages]=100`
  * with `new OperatorFilter(WhereOperator::GREATER_THAN)`.
  */
-final class OperatorFilter implements Filter
+final readonly class OperatorFilter implements Filter
 {
     public function __construct(
-        private readonly WhereOperator $operator = WhereOperator::EQUALS,
+        private WhereOperator $operator = WhereOperator::EQUALS,
     ) {}
 
     public function apply(SelectQueryBuilder $query, string $column, string|array $value): void

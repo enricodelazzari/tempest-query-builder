@@ -21,6 +21,7 @@ abstract class IntegrationTestCase extends IntegrationTest
      *
      * @return DiscoveryLocation[]
      */
+    #[\Override]
     protected function discoverTestLocations(): array
     {
         return [

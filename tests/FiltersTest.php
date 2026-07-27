@@ -17,7 +17,7 @@ use EnricoDeLazzari\QueryBuilder\Tests\Support\Factories\RequestFactory;
 use EnricoDeLazzari\QueryBuilder\Tests\Support\Models\Book;
 use Tempest\Database\Builder\WhereOperator;
 
-it('leaves the query untouched when the request has no filters', function () {
+it('leaves the query untouched when the request has no filters', function (): void {
     $query = new
         #[Model(Book::class)]
         #[AllowedFilter('id')]
@@ -30,7 +30,7 @@ it('leaves the query untouched when the request has no filters', function () {
     expect($query->bindings)->toBe([]);
 });
 
-it('applies an exact filter', function () {
+it('applies an exact filter', function (): void {
     $request = RequestFactory::make(['filter' => ['id' => '1']]);
 
     $query = new
@@ -45,7 +45,7 @@ it('applies an exact filter', function () {
     expect($query->bindings)->toBe(['1']);
 });
 
-it('applies an exact filter with comma separated values', function () {
+it('applies an exact filter with comma separated values', function (): void {
     $request = RequestFactory::make(['filter' => ['id' => '1,2']]);
 
     $query = new
@@ -60,7 +60,7 @@ it('applies an exact filter with comma separated values', function () {
     expect($query->bindings)->toBe(['1', '2']);
 });
 
-it('applies an exact filter with array syntax', function () {
+it('applies an exact filter with array syntax', function (): void {
     $request = RequestFactory::make(['filter' => ['id' => ['1', '2']]]);
 
     $query = new
@@ -75,7 +75,7 @@ it('applies an exact filter with array syntax', function () {
     expect($query->bindings)->toBe(['1', '2']);
 });
 
-it('applies several filters at once', function () {
+it('applies several filters at once', function (): void {
     $request = RequestFactory::make(['filter' => ['id' => '1', 'title' => 'tempest']]);
 
     $query = new
@@ -91,7 +91,7 @@ it('applies several filters at once', function () {
     expect($query->bindings)->toBe(['1', 'tempest']);
 });
 
-it('applies a partial filter', function () {
+it('applies a partial filter', function (): void {
     $request = RequestFactory::make(['filter' => ['title' => 'tempest']]);
 
     $query = new
@@ -106,7 +106,7 @@ it('applies a partial filter', function () {
     expect($query->bindings)->toBe(['%tempest%']);
 });
 
-it('combines several values of a partial filter with or', function () {
+it('combines several values of a partial filter with or', function (): void {
     $request = RequestFactory::make(['filter' => ['title' => 'tempest,laravel']]);
 
     $query = new
@@ -121,7 +121,7 @@ it('combines several values of a partial filter with or', function () {
     expect($query->bindings)->toBe(['%tempest%', '%laravel%']);
 });
 
-it('applies a begins with filter', function () {
+it('applies a begins with filter', function (): void {
     $request = RequestFactory::make(['filter' => ['title' => 'temp']]);
 
     $query = new
@@ -135,7 +135,7 @@ it('applies a begins with filter', function () {
     expect($query->bindings)->toBe(['temp%']);
 });
 
-it('applies an ends with filter', function () {
+it('applies an ends with filter', function (): void {
     $request = RequestFactory::make(['filter' => ['title' => 'est']]);
 
     $query = new
@@ -149,7 +149,7 @@ it('applies an ends with filter', function () {
     expect($query->bindings)->toBe(['%est']);
 });
 
-it('applies an operator filter', function () {
+it('applies an operator filter', function (): void {
     $request = RequestFactory::make(['filter' => ['id' => '10']]);
 
     $query = new
@@ -164,7 +164,7 @@ it('applies an operator filter', function () {
     expect($query->bindings)->toBe(['10']);
 });
 
-it('filters on a relation', function () {
+it('filters on a relation', function (): void {
     $request = RequestFactory::make(['filter' => ['author' => 'tolkien']]);
 
     $query = new
@@ -179,7 +179,7 @@ it('filters on a relation', function () {
     expect($query->bindings)->toBe(['tolkien']);
 });
 
-it('filters on a column that differs from the exposed name', function () {
+it('filters on a column that differs from the exposed name', function (): void {
     $request = RequestFactory::make(['filter' => ['author' => '1']]);
 
     $query = new
@@ -194,7 +194,7 @@ it('filters on a column that differs from the exposed name', function () {
     expect($query->bindings)->toBe(['1']);
 });
 
-it('splits values on a filter specific delimiter', function () {
+it('splits values on a filter specific delimiter', function (): void {
     $request = RequestFactory::make(['filter' => ['id' => '1|2']]);
 
     $query = new
@@ -209,7 +209,7 @@ it('splits values on a filter specific delimiter', function () {
     expect($query->bindings)->toBe(['1', '2']);
 });
 
-it('falls back to the default value of a filter', function () {
+it('falls back to the default value of a filter', function (): void {
     $query = new
         #[Model(Book::class)]
         #[AllowedFilter('title', default: 'tempest')]
@@ -222,7 +222,7 @@ it('falls back to the default value of a filter', function () {
     expect($query->bindings)->toBe(['tempest']);
 });
 
-it('prefers the request value over the default value of a filter', function () {
+it('prefers the request value over the default value of a filter', function (): void {
     $request = RequestFactory::make(['filter' => ['title' => 'laravel']]);
 
     $query = new
@@ -236,7 +236,7 @@ it('prefers the request value over the default value of a filter', function () {
     expect($query->bindings)->toBe(['laravel']);
 });
 
-it('ignores empty filter values', function () {
+it('ignores empty filter values', function (): void {
     $request = RequestFactory::make(['filter' => ['title' => '']]);
 
     $query = new
@@ -251,7 +251,7 @@ it('ignores empty filter values', function () {
     expect($query->bindings)->toBe([]);
 });
 
-it('rejects a filter that was not allowed', function () {
+it('rejects a filter that was not allowed', function (): void {
     $request = RequestFactory::make(['filter' => ['secret' => '1']]);
 
     new
@@ -263,7 +263,7 @@ it('rejects a filter that was not allowed', function () {
         };
 })->throws(InvalidFilterQuery::class, 'Filter `secret` is not allowed. Allowed filters: `title`.');
 
-it('ignores a filter that was not allowed when strict mode is off', function () {
+it('ignores a filter that was not allowed when strict mode is off', function (): void {
     $request = RequestFactory::make(['filter' => ['secret' => '1', 'title' => 'tempest']]);
 
     $query = new
@@ -278,7 +278,7 @@ it('ignores a filter that was not allowed when strict mode is off', function () 
     expect($query->bindings)->toBe(['tempest']);
 });
 
-it('lists every rejected filter when several were not allowed', function () {
+it('lists every rejected filter when several were not allowed', function (): void {
     $request = RequestFactory::make(['filter' => ['secret' => '1', 'hidden' => '2']]);
 
     new
@@ -291,7 +291,7 @@ it('lists every rejected filter when several were not allowed', function () {
         };
 })->throws(InvalidFilterQuery::class, 'Filters `secret`, `hidden` are not allowed. Allowed filters: `title`, `id`.');
 
-it('reports that nothing is allowed when the query builder allows no filters', function () {
+it('reports that nothing is allowed when the query builder allows no filters', function (): void {
     $request = RequestFactory::make(['filter' => ['secret' => '1']]);
 
     new

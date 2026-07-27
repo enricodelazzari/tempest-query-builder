@@ -11,7 +11,7 @@ use EnricoDeLazzari\QueryBuilder\QueryBuilderConfig;
 use EnricoDeLazzari\QueryBuilder\Tests\Support\Factories\RequestFactory;
 use EnricoDeLazzari\QueryBuilder\Tests\Support\Models\Book;
 
-it('loads nothing when the request has no includes', function () {
+it('loads nothing when the request has no includes', function (): void {
     $query = new
         #[Model(Book::class)]
         #[AllowedInclude('author')]
@@ -23,7 +23,7 @@ it('loads nothing when the request has no includes', function () {
     expect(sql($query))->toBe('SELECT '.BOOK_FIELDS.' FROM `books`');
 });
 
-it('eager loads a relation', function () {
+it('eager loads a relation', function (): void {
     $request = RequestFactory::make(['include' => 'author']);
 
     $query = new
@@ -39,7 +39,7 @@ it('eager loads a relation', function () {
     );
 });
 
-it('eager loads a relation exposed under another name', function () {
+it('eager loads a relation exposed under another name', function (): void {
     $request = RequestFactory::make(['include' => 'writer']);
 
     $query = new
@@ -55,7 +55,7 @@ it('eager loads a relation exposed under another name', function () {
     );
 });
 
-it('eager loads several relations', function () {
+it('eager loads several relations', function (): void {
     $request = RequestFactory::make(['include' => 'author,author.books']);
 
     $query = new
@@ -78,7 +78,7 @@ it('eager loads several relations', function () {
     ]));
 });
 
-it('rejects an include that was not allowed', function () {
+it('rejects an include that was not allowed', function (): void {
     $request = RequestFactory::make(['include' => 'secret']);
 
     new
@@ -90,7 +90,7 @@ it('rejects an include that was not allowed', function () {
         };
 })->throws(InvalidIncludeQuery::class, 'Include `secret` is not allowed. Allowed includes: `author`.');
 
-it('ignores an include that was not allowed when strict mode is off', function () {
+it('ignores an include that was not allowed when strict mode is off', function (): void {
     $request = RequestFactory::make(['include' => 'secret,author']);
 
     $query = new

@@ -27,9 +27,11 @@
         "tempest/support": "^3.17"
     },
     "require-dev": {
+        "composer/pcre": "<3.4",
         "laravel/pint": "^1.24",
         "pestphp/pest": "^4.7",
-        "phpstan/phpstan": "^2.2",
+        "phpstan/phpstan": "~2.1.38",
+        "rector/rector": "^2.3",
         "tempest/framework": "^3.17"
     },
     "autoload": {
@@ -46,6 +48,8 @@
         "test": "vendor/bin/pest",
         "test-coverage": "vendor/bin/pest --coverage",
         "analyse": "vendor/bin/phpstan analyse --memory-limit=512M",
+        "refactor": "vendor/bin/rector process",
+        "refactor-check": "vendor/bin/rector process --dry-run",
         "format": "vendor/bin/pint"
     },
     "config": {

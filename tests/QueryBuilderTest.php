@@ -9,14 +9,14 @@ use EnricoDeLazzari\QueryBuilder\Tests\Support\Factories\RequestFactory;
 use EnricoDeLazzari\QueryBuilder\Tests\Support\Models\Book;
 use Tempest\Database\Builder\QueryBuilders\SelectQueryBuilder;
 
-it('cannot be built without a model attribute', function () {
+it('cannot be built without a model attribute', function (): void {
     new class(RequestFactory::make())
     {
         use HasQueryBuilder;
     };
 })->throws(ModelWasInvalid::class);
 
-it('cannot be built with something that is not a database model', function () {
+it('cannot be built with something that is not a database model', function (): void {
     new
         #[Model('not-a-model')]
         class(RequestFactory::make())
@@ -25,7 +25,7 @@ it('cannot be built with something that is not a database model', function () {
         };
 })->throws(ModelWasInvalid::class);
 
-it('builds a select query for the model', function () {
+it('builds a select query for the model', function (): void {
     $query = new
         #[Model(Book::class)]
         class(RequestFactory::make())
@@ -37,7 +37,7 @@ it('builds a select query for the model', function () {
     expect($query->bindings)->toBe([]);
 });
 
-it('exposes the underlying tempest query builder', function () {
+it('exposes the underlying tempest query builder', function (): void {
     $query = new
         #[Model(Book::class)]
         class(RequestFactory::make())
@@ -48,7 +48,7 @@ it('exposes the underlying tempest query builder', function () {
     expect($query->query)->toBeInstanceOf(SelectQueryBuilder::class);
 });
 
-it('forwards calls to the underlying query builder', function () {
+it('forwards calls to the underlying query builder', function (): void {
     $query = new
         #[Model(Book::class)]
         class(RequestFactory::make())
@@ -63,7 +63,7 @@ it('forwards calls to the underlying query builder', function () {
     expect($query->bindings)->toBe([1]);
 });
 
-it('fails on methods the query builder does not have', function () {
+it('fails on methods the query builder does not have', function (): void {
     $query = new
         #[Model(Book::class)]
         class(RequestFactory::make())

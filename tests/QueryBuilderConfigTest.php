@@ -13,7 +13,7 @@ use EnricoDeLazzari\QueryBuilder\Tests\Support\Models\Book;
 use EnricoDeLazzari\QueryBuilder\Tests\Support\Queries\BookQueryBuilder;
 use Tempest\Http\Request;
 
-it('reads the parameter names from the config', function () {
+it('reads the parameter names from the config', function (): void {
     $request = RequestFactory::make([
         'where' => ['title' => 'tempest'],
         'order' => '-title',
@@ -47,7 +47,7 @@ it('reads the parameter names from the config', function () {
     expect($query->bindings)->toBe(['tempest']);
 });
 
-it('reads the delimiter from the config', function () {
+it('reads the delimiter from the config', function (): void {
     $request = RequestFactory::make(['filter' => ['id' => '1|2']]);
 
     $query = new
@@ -61,11 +61,11 @@ it('reads the delimiter from the config', function () {
     expect($query->bindings)->toBe(['1', '2']);
 });
 
-it('is resolved from the container', function () {
+it('is resolved from the container', function (): void {
     $this->container->config(new QueryBuilderConfig(filterParameter: 'where'));
     $this->container->singleton(
         Request::class,
-        fn () => RequestFactory::make(['where' => ['title' => 'tempest']]),
+        fn (): \Tempest\Http\GenericRequest => RequestFactory::make(['where' => ['title' => 'tempest']]),
     );
 
     $query = $this->container->get(

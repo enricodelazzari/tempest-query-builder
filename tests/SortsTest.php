@@ -12,7 +12,7 @@ use EnricoDeLazzari\QueryBuilder\Tests\Support\Factories\RequestFactory;
 use EnricoDeLazzari\QueryBuilder\Tests\Support\Models\Book;
 use Tempest\Database\Direction;
 
-it('leaves the query unordered when nothing is requested', function () {
+it('leaves the query unordered when nothing is requested', function (): void {
     $query = new
         #[Model(Book::class)]
         #[AllowedSort('title')]
@@ -24,7 +24,7 @@ it('leaves the query unordered when nothing is requested', function () {
     expect(sql($query))->toBe('SELECT '.BOOK_FIELDS.' FROM `books`');
 });
 
-it('sorts ascending by default', function () {
+it('sorts ascending by default', function (): void {
     $request = RequestFactory::make(['sort' => 'title']);
 
     $query = new
@@ -38,7 +38,7 @@ it('sorts ascending by default', function () {
     expect(sql($query))->toBe('SELECT '.BOOK_FIELDS.' FROM `books` ORDER BY `books`.`title` ASC');
 });
 
-it('sorts descending when the name is prefixed with a hyphen', function () {
+it('sorts descending when the name is prefixed with a hyphen', function (): void {
     $request = RequestFactory::make(['sort' => '-title']);
 
     $query = new
@@ -52,7 +52,7 @@ it('sorts descending when the name is prefixed with a hyphen', function () {
     expect(sql($query))->toBe('SELECT '.BOOK_FIELDS.' FROM `books` ORDER BY `books`.`title` DESC');
 });
 
-it('sorts by several columns in the requested order', function () {
+it('sorts by several columns in the requested order', function (): void {
     $request = RequestFactory::make(['sort' => '-title,id']);
 
     $query = new
@@ -67,7 +67,7 @@ it('sorts by several columns in the requested order', function () {
     expect(sql($query))->toBe('SELECT '.BOOK_FIELDS.' FROM `books` ORDER BY `books`.`title` DESC, `books`.`id` ASC');
 });
 
-it('sorts on a column that differs from the exposed name', function () {
+it('sorts on a column that differs from the exposed name', function (): void {
     $request = RequestFactory::make(['sort' => 'author']);
 
     $query = new
@@ -81,7 +81,7 @@ it('sorts on a column that differs from the exposed name', function () {
     expect(sql($query))->toBe('SELECT '.BOOK_FIELDS.' FROM `books` ORDER BY `books`.`author_id` ASC');
 });
 
-it('applies the default sort when nothing is requested', function () {
+it('applies the default sort when nothing is requested', function (): void {
     $query = new
         #[Model(Book::class)]
         #[DefaultSort('title', Direction::DESC)]
@@ -93,7 +93,7 @@ it('applies the default sort when nothing is requested', function () {
     expect(sql($query))->toBe('SELECT '.BOOK_FIELDS.' FROM `books` ORDER BY `books`.`title` DESC');
 });
 
-it('applies several default sorts', function () {
+it('applies several default sorts', function (): void {
     $query = new
         #[Model(Book::class)]
         #[DefaultSort('title')]
@@ -106,7 +106,7 @@ it('applies several default sorts', function () {
     expect(sql($query))->toBe('SELECT '.BOOK_FIELDS.' FROM `books` ORDER BY `books`.`title` ASC, `books`.`id` DESC');
 });
 
-it('lets the request override the default sort', function () {
+it('lets the request override the default sort', function (): void {
     $request = RequestFactory::make(['sort' => 'id']);
 
     $query = new
@@ -121,7 +121,7 @@ it('lets the request override the default sort', function () {
     expect(sql($query))->toBe('SELECT '.BOOK_FIELDS.' FROM `books` ORDER BY `books`.`id` ASC');
 });
 
-it('falls back to the default sort when no requested sort could be applied', function () {
+it('falls back to the default sort when no requested sort could be applied', function (): void {
     $request = RequestFactory::make(['sort' => 'unknown']);
 
     $query = new
@@ -136,7 +136,7 @@ it('falls back to the default sort when no requested sort could be applied', fun
     expect(sql($query))->toBe('SELECT '.BOOK_FIELDS.' FROM `books` ORDER BY `books`.`title` DESC');
 });
 
-it('rejects a sort that was not allowed', function () {
+it('rejects a sort that was not allowed', function (): void {
     $request = RequestFactory::make(['sort' => '-secret']);
 
     new
@@ -148,7 +148,7 @@ it('rejects a sort that was not allowed', function () {
         };
 })->throws(InvalidSortQuery::class, 'Sort `secret` is not allowed. Allowed sorts: `title`.');
 
-it('ignores a sort that was not allowed when strict mode is off', function () {
+it('ignores a sort that was not allowed when strict mode is off', function (): void {
     $request = RequestFactory::make(['sort' => 'secret,title']);
 
     $query = new
@@ -162,7 +162,7 @@ it('ignores a sort that was not allowed when strict mode is off', function () {
     expect(sql($query))->toBe('SELECT '.BOOK_FIELDS.' FROM `books` ORDER BY `books`.`title` ASC');
 });
 
-it('rejects a sort whose direction prefix is malformed', function () {
+it('rejects a sort whose direction prefix is malformed', function (): void {
     $request = RequestFactory::make(['sort' => '--title']);
 
     new

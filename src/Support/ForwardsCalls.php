@@ -36,7 +36,7 @@ trait ForwardsCalls
                 'Call to undefined method %s::%s()',
                 static::class,
                 $method,
-            ));
+            ), $exception->getCode(), $exception);
         }
     }
 

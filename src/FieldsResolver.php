@@ -22,15 +22,15 @@ use function Tempest\Support\arr;
  * a select query's fields when the query builder is constructed, so they have to
  * be known up front.
  */
-final class FieldsResolver
+final readonly class FieldsResolver
 {
     use ReadsRequest;
 
     public function __construct(
-        private readonly ClassReflector $reflector,
-        private readonly Request $request,
-        private readonly QueryBuilderConfig $config,
-        private readonly ModelInspector $model,
+        private ClassReflector $reflector,
+        private Request $request,
+        private QueryBuilderConfig $config,
+        private ModelInspector $model,
     ) {}
 
     /**

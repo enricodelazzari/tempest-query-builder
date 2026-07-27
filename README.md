@@ -287,8 +287,14 @@ $books = $query
 ## Testing
 
 ```bash
-composer test
+composer test            # Pest
+composer analyse         # PHPStan, at max level
+composer refactor-check  # Rector, reporting without writing
+composer refactor        # Rector, applying its changes
+composer format          # Pint
 ```
+
+Each of these runs in CI on every pull request.
 
 ## Changelog
 

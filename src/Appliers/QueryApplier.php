@@ -12,7 +12,7 @@ use Tempest\Reflection\ClassReflector;
 /**
  * Runs every applier against the query, in the order the resulting SQL expects.
  */
-final class QueryApplier
+final readonly class QueryApplier
 {
     /** @var class-string<Applier>[] */
     private const array APPLIERS = [
@@ -22,9 +22,9 @@ final class QueryApplier
     ];
 
     public function __construct(
-        private readonly ClassReflector $reflector,
-        private readonly Request $request,
-        private readonly QueryBuilderConfig $config,
+        private ClassReflector $reflector,
+        private Request $request,
+        private QueryBuilderConfig $config,
     ) {}
 
     public function apply(SelectQueryBuilder $query): void

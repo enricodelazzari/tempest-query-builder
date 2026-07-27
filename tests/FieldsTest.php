@@ -12,7 +12,7 @@ use EnricoDeLazzari\QueryBuilder\QueryBuilderConfig;
 use EnricoDeLazzari\QueryBuilder\Tests\Support\Factories\RequestFactory;
 use EnricoDeLazzari\QueryBuilder\Tests\Support\Models\Book;
 
-it('selects every column when the request asks for no fields', function () {
+it('selects every column when the request asks for no fields', function (): void {
     $query = new
         #[Model(Book::class)]
         #[AllowedField('title')]
@@ -24,7 +24,7 @@ it('selects every column when the request asks for no fields', function () {
     expect(sql($query))->toBe('SELECT '.BOOK_FIELDS.' FROM `books`');
 });
 
-it('narrows the selection to a requested field', function () {
+it('narrows the selection to a requested field', function (): void {
     $request = RequestFactory::make(['fields' => ['books' => 'title']]);
 
     $query = new
@@ -38,7 +38,7 @@ it('narrows the selection to a requested field', function () {
     expect(sql($query))->toBe('SELECT books.title AS `books.title` FROM `books`');
 });
 
-it('narrows the selection to several fields, in the requested order', function () {
+it('narrows the selection to several fields, in the requested order', function (): void {
     $request = RequestFactory::make(['fields' => ['books' => 'title,id']]);
 
     $query = new
@@ -55,7 +55,7 @@ it('narrows the selection to several fields, in the requested order', function (
     );
 });
 
-it('ignores a fieldset for another table', function () {
+it('ignores a fieldset for another table', function (): void {
     $request = RequestFactory::make(['fields' => ['authors' => 'name']]);
 
     $query = new
@@ -69,7 +69,7 @@ it('ignores a fieldset for another table', function () {
     expect(sql($query))->toBe('SELECT '.BOOK_FIELDS.' FROM `books`');
 });
 
-it('leaves the columns of an included relation untouched', function () {
+it('leaves the columns of an included relation untouched', function (): void {
     $request = RequestFactory::make([
         'fields' => ['books' => 'title'],
         'include' => 'author',
@@ -89,7 +89,7 @@ it('leaves the columns of an included relation untouched', function () {
     );
 });
 
-it('narrows the selection alongside a filter', function () {
+it('narrows the selection alongside a filter', function (): void {
     $request = RequestFactory::make([
         'fields' => ['books' => 'title'],
         'filter' => ['id' => '1'],
@@ -110,7 +110,7 @@ it('narrows the selection alongside a filter', function () {
     expect($query->bindings)->toBe(['1']);
 });
 
-it('reads the fields parameter name from the config', function () {
+it('reads the fields parameter name from the config', function (): void {
     $request = RequestFactory::make(['only' => ['books' => 'title']]);
 
     $query = new
@@ -124,7 +124,7 @@ it('reads the fields parameter name from the config', function () {
     expect(sql($query))->toBe('SELECT books.title AS `books.title` FROM `books`');
 });
 
-it('rejects a field that was not allowed', function () {
+it('rejects a field that was not allowed', function (): void {
     $request = RequestFactory::make(['fields' => ['books' => 'secret']]);
 
     new
@@ -136,7 +136,7 @@ it('rejects a field that was not allowed', function () {
         };
 })->throws(InvalidFieldQuery::class, 'Field `secret` is not allowed. Allowed fields: `title`.');
 
-it('rejects any field when the query builder allows none', function () {
+it('rejects any field when the query builder allows none', function (): void {
     $request = RequestFactory::make(['fields' => ['books' => 'title']]);
 
     new
@@ -147,7 +147,7 @@ it('rejects any field when the query builder allows none', function () {
         };
 })->throws(InvalidFieldQuery::class, 'Field `title` is not allowed. Allowed fields: none.');
 
-it('ignores a field that was not allowed when strict mode is off', function () {
+it('ignores a field that was not allowed when strict mode is off', function (): void {
     $request = RequestFactory::make(['fields' => ['books' => 'secret,title']]);
 
     $query = new
@@ -161,7 +161,7 @@ it('ignores a field that was not allowed when strict mode is off', function () {
     expect(sql($query))->toBe('SELECT books.title AS `books.title` FROM `books`');
 });
 
-it('selects every column when no requested field could be applied', function () {
+it('selects every column when no requested field could be applied', function (): void {
     $request = RequestFactory::make(['fields' => ['books' => 'secret']]);
 
     $query = new
