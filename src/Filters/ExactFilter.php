@@ -1,37 +1,25 @@
 <?php
 
+declare(strict_types=1);
+
 namespace EnricoDeLazzari\QueryBuilder\Filters;
 
-use Tempest\Database\Builder\FieldDefinition;
 use Tempest\Database\Builder\QueryBuilders\SelectQueryBuilder;
 
-class ExactFilter implements Filter
+/**
+ * Matches a column against an exact value, or against a set of values when
+ * the request contains several of them: `?filter[id]=1,2` becomes `id IN (?, ?)`.
+ */
+final class ExactFilter implements Filter
 {
-    public function query(
-        SelectQueryBuilder $builder,
-        string $attribute,
-        string $value
-    ): void {
-        $model = (fn () => $this->model ?? [])->call($builder);
-        $where = (fn () => $this->select->where)->call($builder) ?? [];
-        $values = explode(',', $value);
-
-        $field = new FieldDefinition(
-            $model->getTableDefinition(),
-            $attribute,
-        );
-
-        $and = count($where) > 0 ? 'AND ' : '';
-
-        if (count($values) === 1) {
-            $builder->where("{$and}{$field} = ?", $value);
+    public function apply(SelectQueryBuilder $query, string $column, string|array $value): void
+    {
+        if (is_array($value)) {
+            $query->whereIn($column, $value);
 
             return;
         }
 
-        $placeholders = array_fill(0, count($values), '?');
-        $placeholders = implode(',', $placeholders);
-
-        $builder->where("{$and}{$field} IN ({$placeholders})", ...$values);
+        $query->whereField($column, $value);
     }
 }

@@ -1,19 +1,22 @@
 <?php
 
+declare(strict_types=1);
+
 namespace EnricoDeLazzari\QueryBuilder\Tests\Support\Factories;
 
 use Tempest\Http\GenericRequest;
 use Tempest\Http\Method;
 
-class RequestFactory
+final class RequestFactory
 {
-    public static function make(array $query): GenericRequest
+    public static function make(array $query = []): GenericRequest
     {
-        $queryString = http_build_query($query);
+        $uri = 'https://domain.test/books';
 
-        $method = Method::GET;
-        $uri = "https://domain.test/books?{$queryString}";
+        if ($query !== []) {
+            $uri .= '?'.http_build_query($query);
+        }
 
-        return new GenericRequest($method, $uri);
+        return new GenericRequest(Method::GET, $uri);
     }
 }

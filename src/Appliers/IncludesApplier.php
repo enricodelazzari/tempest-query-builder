@@ -1,24 +1,59 @@
 <?php
 
+declare(strict_types=1);
+
 namespace EnricoDeLazzari\QueryBuilder\Appliers;
 
 use EnricoDeLazzari\QueryBuilder\Attributes\AllowedInclude;
+use EnricoDeLazzari\QueryBuilder\Exceptions\InvalidIncludeQuery;
+use Tempest\Database\Builder\QueryBuilders\SelectQueryBuilder;
 
-class IncludesApplier extends BaseApplier
+final class IncludesApplier extends Applier
 {
-    protected string $attribute = AllowedInclude::class;
-
-    public function apply(): void
+    public function apply(SelectQueryBuilder $query): void
     {
-        foreach ($this->items as $include) {
+        /** @var AllowedInclude[] $allowed */
+        $allowed = $this->reflector->getAttributes(AllowedInclude::class);
 
-            $value = $this->request->get('includes') ?? null;
+        $requested = $this->split(
+            $this->parameter($this->config->includeParameter) ?? [],
+        );
 
-            if (is_null($value)) {
+        if ($requested === []) {
+            return;
+        }
+
+        $this->guard($requested, $allowed);
+
+        foreach ($requested as $name) {
+            $include = array_find(
+                $allowed,
+                static fn (AllowedInclude $include): bool => $include->name === $name,
+            );
+
+            if ($include === null) {
                 continue;
             }
 
-            $include->include->query($this->query, $include->name, $value);
+            $include->include->apply($query, $include->relation());
+        }
+    }
+
+    /**
+     * @param  string[]  $requested
+     * @param  AllowedInclude[]  $allowed
+     */
+    private function guard(array $requested, array $allowed): void
+    {
+        if (! $this->config->strict) {
+            return;
+        }
+
+        $names = array_map(static fn (AllowedInclude $include): string => $include->name, $allowed);
+        $unknown = array_diff($requested, $names);
+
+        if ($unknown !== []) {
+            throw InvalidIncludeQuery::forNames($unknown, $names);
         }
     }
 }

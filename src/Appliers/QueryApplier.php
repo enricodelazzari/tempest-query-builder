@@ -1,34 +1,36 @@
 <?php
 
+declare(strict_types=1);
+
 namespace EnricoDeLazzari\QueryBuilder\Appliers;
 
+use EnricoDeLazzari\QueryBuilder\QueryBuilderConfig;
 use Tempest\Database\Builder\QueryBuilders\SelectQueryBuilder;
 use Tempest\Http\Request;
 use Tempest\Reflection\ClassReflector;
 
-class QueryApplier
+/**
+ * Runs every applier against the query, in the order the resulting SQL expects.
+ */
+final class QueryApplier
 {
-    private array $appliers = [
+    /** @var class-string<Applier>[] */
+    private const array APPLIERS = [
         FiltersApplier::class,
         IncludesApplier::class,
         SortsApplier::class,
-        DefaultSortApplier::class,
     ];
 
     public function __construct(
-        private ClassReflector $reflector,
-        private Request $request,
-        private SelectQueryBuilder $query
+        private readonly ClassReflector $reflector,
+        private readonly Request $request,
+        private readonly QueryBuilderConfig $config,
     ) {}
 
-    public function apply(): void
+    public function apply(SelectQueryBuilder $query): void
     {
-        foreach ($this->appliers as $applier) {
-            new $applier(
-                $this->reflector,
-                $this->request,
-                $this->query
-            )->apply();
+        foreach (self::APPLIERS as $applier) {
+            new $applier($this->reflector, $this->request, $this->config)->apply($query);
         }
     }
 }
