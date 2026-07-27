@@ -12,7 +12,7 @@ use EnricoDeLazzari\QueryBuilder\Includes\RelationshipInclude;
  * Allows `?include=name` to eager load a relation on the query.
  */
 #[Attribute(Attribute::TARGET_CLASS | Attribute::IS_REPEATABLE)]
-final readonly class AllowedInclude
+final readonly class AllowedInclude implements Allowed
 {
     public function __construct(
         /**

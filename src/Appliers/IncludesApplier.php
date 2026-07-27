@@ -12,48 +12,20 @@ final class IncludesApplier extends Applier
 {
     public function apply(SelectQueryBuilder $query): void
     {
-        /** @var AllowedInclude[] $allowed */
-        $allowed = $this->reflector->getAttributes(AllowedInclude::class);
+        $allowed = $this->allowed(AllowedInclude::class);
+        $requested = $this->split($this->parameter($this->config->includeParameter) ?? '');
 
-        $requested = $this->split(
-            $this->parameter($this->config->includeParameter) ?? [],
-        );
-
-        if ($requested === []) {
-            return;
-        }
-
-        $this->guard($requested, $allowed);
+        $this->guard($requested, $allowed, InvalidIncludeQuery::class);
 
         foreach ($requested as $name) {
-            $include = array_find(
-                $allowed,
-                static fn (AllowedInclude $include): bool => $include->name === $name,
-            );
+            // Only null when strict mode is off, since `guard` threw otherwise.
+            $include = $this->find($allowed, $name);
 
             if ($include === null) {
                 continue;
             }
 
             $include->include->apply($query, $include->relation());
-        }
-    }
-
-    /**
-     * @param  string[]  $requested
-     * @param  AllowedInclude[]  $allowed
-     */
-    private function guard(array $requested, array $allowed): void
-    {
-        if (! $this->config->strict) {
-            return;
-        }
-
-        $names = array_map(static fn (AllowedInclude $include): string => $include->name, $allowed);
-        $unknown = array_diff($requested, $names);
-
-        if ($unknown !== []) {
-            throw InvalidIncludeQuery::forNames($unknown, $names);
         }
     }
 }

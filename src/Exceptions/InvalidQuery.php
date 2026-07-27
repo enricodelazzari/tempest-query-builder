@@ -17,6 +17,11 @@ use Tempest\Router\Exceptions\ConvertsToResponse;
 abstract class InvalidQuery extends Exception implements ConvertsToResponse, QueryBuilderException
 {
     /**
+     * Singular name of what was rejected, e.g. `filter`.
+     */
+    protected const string SUBJECT = 'parameter';
+
+    /**
      * @param  string[]  $requested  names that were rejected
      * @param  string[]  $allowed  names that would have been accepted
      */
@@ -24,13 +29,15 @@ abstract class InvalidQuery extends Exception implements ConvertsToResponse, Que
         public readonly array $requested,
         public readonly array $allowed,
     ) {
+        $single = count($requested) === 1;
+
         parent::__construct(sprintf(
-            'Requested %s `%s` %s not allowed. Allowed %s: %s.',
-            static::subject(),
-            implode('`, `', $requested),
-            count($requested) === 1 ? 'is' : 'are',
-            static::subject(),
-            $allowed === [] ? 'none' : '`'.implode('`, `', $allowed).'`',
+            '%s %s %s not allowed. Allowed %ss: %s.',
+            ucfirst($single ? static::SUBJECT : static::SUBJECT.'s'),
+            self::quote($requested),
+            $single ? 'is' : 'are',
+            static::SUBJECT,
+            $allowed === [] ? 'none' : self::quote($allowed),
         ));
     }
 
@@ -56,7 +63,10 @@ abstract class InvalidQuery extends Exception implements ConvertsToResponse, Que
     }
 
     /**
-     * Human readable name of what was rejected, e.g. `filters`.
+     * @param  string[]  $names
      */
-    abstract protected static function subject(): string;
+    private static function quote(array $names): string
+    {
+        return '`'.implode('`, `', $names).'`';
+    }
 }

@@ -261,7 +261,7 @@ it('rejects a filter that was not allowed', function () {
         {
             use HasQueryBuilder;
         };
-})->throws(InvalidFilterQuery::class, 'Requested filters `secret` is not allowed. Allowed filters: `title`.');
+})->throws(InvalidFilterQuery::class, 'Filter `secret` is not allowed. Allowed filters: `title`.');
 
 it('ignores a filter that was not allowed when strict mode is off', function () {
     $request = RequestFactory::make(['filter' => ['secret' => '1', 'title' => 'tempest']]);
@@ -277,3 +277,27 @@ it('ignores a filter that was not allowed when strict mode is off', function () 
     expect(sql($query))->toBe('SELECT '.BOOK_FIELDS.' FROM `books` WHERE `books`.`title` = ?');
     expect($query->bindings)->toBe(['tempest']);
 });
+
+it('lists every rejected filter when several were not allowed', function () {
+    $request = RequestFactory::make(['filter' => ['secret' => '1', 'hidden' => '2']]);
+
+    new
+        #[Model(Book::class)]
+        #[AllowedFilter('title')]
+        #[AllowedFilter('id')]
+        class($request)
+        {
+            use HasQueryBuilder;
+        };
+})->throws(InvalidFilterQuery::class, 'Filters `secret`, `hidden` are not allowed. Allowed filters: `title`, `id`.');
+
+it('reports that nothing is allowed when the query builder allows no filters', function () {
+    $request = RequestFactory::make(['filter' => ['secret' => '1']]);
+
+    new
+        #[Model(Book::class)]
+        class($request)
+        {
+            use HasQueryBuilder;
+        };
+})->throws(InvalidFilterQuery::class, 'Filter `secret` is not allowed. Allowed filters: none.');

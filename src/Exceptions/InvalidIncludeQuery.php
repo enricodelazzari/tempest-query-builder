@@ -6,8 +6,5 @@ namespace EnricoDeLazzari\QueryBuilder\Exceptions;
 
 final class InvalidIncludeQuery extends InvalidQuery
 {
-    protected static function subject(): string
-    {
-        return 'includes';
-    }
+    protected const string SUBJECT = 'include';
 }

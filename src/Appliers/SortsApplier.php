@@ -14,47 +14,35 @@ final class SortsApplier extends Applier
 {
     public function apply(SelectQueryBuilder $query): void
     {
-        $requested = $this->split(
-            $this->parameter($this->config->sortParameter) ?? [],
+        $allowed = $this->allowed(AllowedSort::class);
+        $requested = $this->split($this->parameter($this->config->sortParameter) ?? '');
+
+        $this->guard(
+            array_map($this->name(...), $requested),
+            $allowed,
+            InvalidSortQuery::class,
         );
 
-        if ($requested === []) {
+        /** @var array<array{AllowedSort, Direction}> $sorts */
+        $sorts = [];
+
+        foreach ($requested as $item) {
+            // Only null when strict mode is off, since `guard` threw otherwise.
+            $sort = $this->find($allowed, $this->name($item));
+
+            if ($sort !== null) {
+                $sorts[] = [$sort, $this->direction($item)];
+            }
+        }
+
+        if ($sorts === []) {
             $this->applyDefaults($query);
 
             return;
         }
 
-        /** @var AllowedSort[] $allowed */
-        $allowed = $this->reflector->getAttributes(AllowedSort::class);
-
-        $this->guard($requested, $allowed);
-
-        $applied = 0;
-
-        foreach ($requested as $item) {
-            $descending = str_starts_with($item, '-');
-            $name = $descending ? substr($item, 1) : $item;
-
-            $sort = array_find(
-                $allowed,
-                static fn (AllowedSort $sort): bool => $sort->name === $name,
-            );
-
-            if ($sort === null) {
-                continue;
-            }
-
-            $sort->sort->apply(
-                $query,
-                $sort->column(),
-                $descending ? Direction::DESC : Direction::ASC,
-            );
-
-            $applied++;
-        }
-
-        if ($applied === 0) {
-            $this->applyDefaults($query);
+        foreach ($sorts as [$sort, $direction]) {
+            $sort->sort->apply($query, $sort->column(), $direction);
         }
     }
 
@@ -69,24 +57,20 @@ final class SortsApplier extends Applier
     }
 
     /**
-     * @param  string[]  $requested
-     * @param  AllowedSort[]  $allowed
+     * Strips the leading hyphen that marks a descending sort.
      */
-    private function guard(array $requested, array $allowed): void
+    private function name(string $sort): string
     {
-        if (! $this->config->strict) {
-            return;
-        }
+        return $this->isDescending($sort) ? substr($sort, 1) : $sort;
+    }
 
-        $names = array_map(static fn (AllowedSort $sort): string => $sort->name, $allowed);
+    private function direction(string $sort): Direction
+    {
+        return $this->isDescending($sort) ? Direction::DESC : Direction::ASC;
+    }
 
-        $unknown = array_diff(
-            array_map(static fn (string $item): string => ltrim($item, '-'), $requested),
-            $names,
-        );
-
-        if ($unknown !== []) {
-            throw InvalidSortQuery::forNames($unknown, $names);
-        }
+    private function isDescending(string $sort): bool
+    {
+        return str_starts_with($sort, '-');
     }
 }

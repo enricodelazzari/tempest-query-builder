@@ -88,7 +88,7 @@ it('rejects an include that was not allowed', function () {
         {
             use HasQueryBuilder;
         };
-})->throws(InvalidIncludeQuery::class, 'Requested includes `secret` is not allowed. Allowed includes: `author`.');
+})->throws(InvalidIncludeQuery::class, 'Include `secret` is not allowed. Allowed includes: `author`.');
 
 it('ignores an include that was not allowed when strict mode is off', function () {
     $request = RequestFactory::make(['include' => 'secret,author']);

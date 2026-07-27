@@ -141,6 +141,22 @@ final class PublishedFilter implements Filter
 }
 ```
 
+`$value` is a string when the request held a single value and a list when it held several, so a filter decides for itself
+what several values mean. For `LIKE` filters, extend `LikeFilter` instead and only describe the pattern — combining
+several values with `OR` is already handled:
+
+```php
+use EnricoDeLazzari\QueryBuilder\Filters\LikeFilter;
+
+final class ContainsWordFilter extends LikeFilter
+{
+    protected function pattern(string $value): string
+    {
+        return "% {$value} %";
+    }
+}
+```
+
 ## Sorting
 
 `?sort=title` orders ascending, `?sort=-title` descending. Several sorts are applied in the order they were requested:
