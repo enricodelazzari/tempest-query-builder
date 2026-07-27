@@ -1,0 +1,18 @@
+parameters:
+    level: max
+    paths:
+        - src
+        # The support classes are plain PHP and exercise the package's traits,
+        # which PHPStan can only analyse through a class that uses them. The Pest
+        # files themselves are left out: their dynamic API needs a dedicated
+        # extension to be understood.
+        - tests/Support
+    treatPhpDocTypesAsCertain: false
+
+    ignoreErrors:
+        # Tempest's `SelectQueryBuilder` and `ClassReflector` are generic over
+        # the model they query. This package is deliberately model-agnostic — a
+        # filter or a sort works the same whatever the model is — so there is no
+        # type argument to pass on, and writing `<mixed>` throughout would add
+        # noise rather than safety.
+        - identifier: missingType.generics

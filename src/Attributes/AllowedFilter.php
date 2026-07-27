@@ -14,6 +14,9 @@ use EnricoDeLazzari\QueryBuilder\Filters\Filter;
 #[Attribute(Attribute::TARGET_CLASS | Attribute::IS_REPEATABLE)]
 final readonly class AllowedFilter implements Allowed
 {
+    /**
+     * @param  non-empty-string|null  $delimiter
+     */
     public function __construct(
         /**
          * Name exposed in the query string.

@@ -1,0 +1,47 @@
+name: PHPStan
+
+on:
+  # Restricted to the default branch, like the test workflow: a branch with an
+  # open pull request is already covered by the `pull_request` trigger.
+  push:
+    branches:
+      - main
+    paths:
+      - '**.php'
+      - 'phpstan.neon.dist'
+      - '.github/workflows/phpstan.yml'
+      - 'composer.json'
+  pull_request:
+    paths:
+      - '**.php'
+      - 'phpstan.neon.dist'
+      - '.github/workflows/phpstan.yml'
+      - 'composer.json'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  phpstan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    name: PHPStan
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 8.5
+          extensions: dom, curl, libxml, mbstring, zip, pdo, sqlite, pdo_sqlite, bcmath, intl, exif, iconv, fileinfo, readline
+          coverage: none
+
+      - name: Install dependencies
+        run: composer update --prefer-dist --no-interaction --no-progress
+
+      - name: Run PHPStan
+        run: vendor/bin/phpstan analyse --memory-limit=512M --error-format=github --no-progress

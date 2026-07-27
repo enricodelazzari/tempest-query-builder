@@ -12,6 +12,9 @@ namespace EnricoDeLazzari\QueryBuilder;
  */
 final class QueryBuilderConfig
 {
+    /**
+     * @param  non-empty-string  $delimiter
+     */
     public function __construct(
         /**
          * Name of the query parameter holding the filters, e.g. `?filter[title]=tempest`.

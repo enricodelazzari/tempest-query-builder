@@ -36,6 +36,8 @@ trait HasQueryBuilder
 
     /**
      * Values bound to the query so far.
+     *
+     * @var array<mixed>
      */
     public array $bindings {
         get => $this->query->bindings;
@@ -71,6 +73,9 @@ trait HasQueryBuilder
         new QueryApplier($reflector, $request, $config)->apply($this->query);
     }
 
+    /**
+     * @param  array<mixed>  $arguments
+     */
     public function __call(string $name, array $arguments): mixed
     {
         return $this->forwardDecoratedCallTo($this->query, $name, $arguments);

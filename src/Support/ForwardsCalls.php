@@ -13,9 +13,11 @@ trait ForwardsCalls
      * Calls a method on the given object, re-throwing "undefined method" errors
      * as if they came from this class.
      *
+     * @param  array<mixed>  $parameters
+     *
      * @throws BadMethodCallException
      */
-    protected function forwardCallTo(mixed $object, string $method, array $parameters): mixed
+    protected function forwardCallTo(object $object, string $method, array $parameters): mixed
     {
         try {
             return $object->{$method}(...$parameters);
@@ -42,9 +44,11 @@ trait ForwardsCalls
      * Forwards a method call to the given object, returning `$this` when the
      * forwarded call returned the object itself, so chaining stays on this class.
      *
+     * @param  array<mixed>  $parameters
+     *
      * @throws BadMethodCallException
      */
-    protected function forwardDecoratedCallTo(mixed $object, string $method, array $parameters): mixed
+    protected function forwardDecoratedCallTo(object $object, string $method, array $parameters): mixed
     {
         $result = $this->forwardCallTo($object, $method, $parameters);
 

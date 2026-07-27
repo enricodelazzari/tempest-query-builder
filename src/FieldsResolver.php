@@ -36,6 +36,8 @@ final class FieldsResolver
     /**
      * Returns the fields to select, or `null` to select all of the model's own
      * columns.
+     *
+     * @return ImmutableArray<int, FieldStatement>|null
      */
     public function resolve(): ?ImmutableArray
     {
@@ -56,9 +58,10 @@ final class FieldsResolver
 
         $table = $this->model->getTableName();
 
-        return arr($names)->map(
-            static fn (string $name) => new FieldStatement("{$table}.{$name}")->withAlias(),
-        );
+        return arr(array_map(
+            static fn (string $name): FieldStatement => new FieldStatement("{$table}.{$name}")->withAlias(),
+            $names,
+        ));
     }
 
     /**

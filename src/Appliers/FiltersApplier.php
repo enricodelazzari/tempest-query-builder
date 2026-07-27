@@ -42,6 +42,17 @@ final class FiltersApplier extends Applier
     {
         $filters = $this->parameter($this->config->filterParameter);
 
-        return is_array($filters) ? $filters : [];
+        if (! is_array($filters)) {
+            return [];
+        }
+
+        $requested = [];
+
+        // A query string can produce integer keys, e.g. `?filter[0]=x`.
+        foreach ($filters as $name => $value) {
+            $requested[(string) $name] = $value;
+        }
+
+        return $requested;
     }
 }

@@ -6,6 +6,7 @@ namespace EnricoDeLazzari\QueryBuilder\Support;
 
 use EnricoDeLazzari\QueryBuilder\Attributes\Allowed;
 use EnricoDeLazzari\QueryBuilder\Exceptions\InvalidQuery;
+use Stringable;
 use Tempest\Support\Arr\ImmutableArray;
 
 /**
@@ -78,16 +79,17 @@ trait ReadsRequest
     /**
      * Splits a raw request value into a list, dropping empty entries.
      *
+     * @param  non-empty-string|null  $delimiter
      * @return string[]
      */
     protected function split(mixed $value, ?string $delimiter = null): array
     {
         $values = is_array($value)
             ? $value
-            : explode($delimiter ?? $this->config->delimiter, (string) $value);
+            : explode($delimiter ?? $this->config->delimiter, self::stringify($value));
 
         $values = array_map(
-            static fn (mixed $item): string => trim((string) $item),
+            static fn (mixed $item): string => trim(self::stringify($item)),
             $values,
         );
 
@@ -95,5 +97,20 @@ trait ReadsRequest
             $values,
             static fn (string $item): bool => $item !== '',
         ));
+    }
+
+    /**
+     * Renders a request value as a string. Anything that has no sensible string
+     * form — a nested array, an object that is not stringable — becomes an empty
+     * string, which `split` then drops.
+     */
+    private static function stringify(mixed $value): string
+    {
+        return match (true) {
+            is_string($value) => $value,
+            is_scalar($value) => (string) $value,
+            $value instanceof Stringable => (string) $value,
+            default => '',
+        };
     }
 }
