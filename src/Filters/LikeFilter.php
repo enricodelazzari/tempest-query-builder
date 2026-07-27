@@ -13,7 +13,7 @@ use Tempest\Database\Builder\QueryBuilders\WhereGroupBuilder;
  */
 abstract class LikeFilter implements Filter
 {
-    public function apply(SelectQueryBuilder $query, string $column, string|array $value): void
+    public function apply(SelectQueryBuilder|WhereGroupBuilder $query, string $column, string|array $value): void
     {
         if (! is_array($value)) {
             $query->whereLike($column, $this->pattern($value));
@@ -21,7 +21,7 @@ abstract class LikeFilter implements Filter
             return;
         }
 
-        $query->whereGroup(function (WhereGroupBuilder $group) use ($column, $value): void {
+        $query->andWhereGroup(function (WhereGroupBuilder $group) use ($column, $value): void {
             foreach ($value as $item) {
                 $group->orWhereLike($column, $this->pattern($item));
             }

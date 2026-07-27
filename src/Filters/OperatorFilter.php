@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace EnricoDeLazzari\QueryBuilder\Filters;
 
 use Tempest\Database\Builder\QueryBuilders\SelectQueryBuilder;
+use Tempest\Database\Builder\QueryBuilders\WhereGroupBuilder;
 use Tempest\Database\Builder\WhereOperator;
 
 /**
@@ -17,7 +18,7 @@ final readonly class OperatorFilter implements Filter
         private WhereOperator $operator = WhereOperator::EQUALS,
     ) {}
 
-    public function apply(SelectQueryBuilder $query, string $column, string|array $value): void
+    public function apply(SelectQueryBuilder|WhereGroupBuilder $query, string $column, string|array $value): void
     {
         $query->whereField($column, match (true) {
             $this->operator->supportsArray() => (array) $value,

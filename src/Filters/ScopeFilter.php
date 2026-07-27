@@ -7,6 +7,7 @@ namespace EnricoDeLazzari\QueryBuilder\Filters;
 use EnricoDeLazzari\QueryBuilder\Exceptions\ScopeWasInvalid;
 use Tempest\Database\Builder\QueryBuilders\QueryScope;
 use Tempest\Database\Builder\QueryBuilders\SelectQueryBuilder;
+use Tempest\Database\Builder\QueryBuilders\WhereGroupBuilder;
 
 /**
  * Applies one of Tempest's query scopes, built from what the request asked for.
@@ -32,8 +33,14 @@ final readonly class ScopeFilter implements Filter
         }
     }
 
-    public function apply(SelectQueryBuilder $query, string $column, string|array $value): void
+    public function apply(SelectQueryBuilder|WhereGroupBuilder $query, string $column, string|array $value): void
     {
+        // Tempest only lets scopes run against a whole query, so there is
+        // nothing to apply them to inside a filter group.
+        if (! $query instanceof SelectQueryBuilder) {
+            throw ScopeWasInvalid::notUsableInAGroup($this->scope);
+        }
+
         $query->applyScopes([
             new ($this->scope)(...(is_array($value) ? $value : [$value])),
         ]);

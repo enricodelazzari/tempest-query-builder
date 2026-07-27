@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace EnricoDeLazzari\QueryBuilder\Filters;
 
 use Tempest\Database\Builder\QueryBuilders\SelectQueryBuilder;
+use Tempest\Database\Builder\QueryBuilders\WhereGroupBuilder;
 
 /**
  * Applies a filter to a related model through a `WHERE EXISTS` subquery.
@@ -20,7 +21,7 @@ final readonly class RelationFilter implements Filter
         private Filter $filter = new ExactFilter,
     ) {}
 
-    public function apply(SelectQueryBuilder $query, string $column, string|array $value): void
+    public function apply(SelectQueryBuilder|WhereGroupBuilder $query, string $column, string|array $value): void
     {
         $query->whereHas(
             $this->relation,

@@ -134,6 +134,52 @@ final class BookQueryBuilder
 GET /books?filter[author]=tolkien
 ```
 
+### Filter groups
+
+A group fans one query parameter out over several filters, so `?filter[q]=John` can search more than one column at once:
+
+```php
+#[Model(Book::class)]
+#[AllowedFilterGroup('q', [
+    new AllowedFilter('title', new PartialFilter),
+    new AllowedFilter('subtitle', new PartialFilter),
+])]
+final class BookQueryBuilder
+{
+    use HasQueryBuilder;
+}
+```
+
+```http
+GET /books?filter[q]=John
+```
+
+```sql
+WHERE (books.title LIKE ? OR books.subtitle LIKE ?)
+```
+
+Members are joined with `OR` by default; pass `Conjunction::AND` for the other one. Groups are joined to each other, and
+to plain filters, with `AND`:
+
+```php
+#[AllowedFilter('author_id')]
+#[AllowedFilterGroup('q', [...])]
+#[AllowedFilterGroup('loc', [...], Conjunction::AND)]
+```
+
+```sql
+WHERE books.author_id = ? AND (…) AND (…)
+```
+
+A member contributes its column and its filter, and splits the group's value with its own `delimiter` and `ignore` — a
+member that refuses every value it is given drops out of the group, and a group whose members all drop out leaves the
+query alone. A member's `default` and `nullable` are not used: they describe whether a parameter was asked for, which is
+the group's business rather than the member's.
+
+Two things are checked while the attribute is read, rather than when a request eventually reaches it: a group needs at
+least one member, and every member has to be an `AllowedFilter`. A `ScopeFilter` cannot be a member, because Tempest
+applies a scope to a whole query rather than to a group of conditions — allow it as a filter of its own instead.
+
 ### Filtering through a query scope
 
 `ScopeFilter` hands the request over to one of Tempest's query scopes. A scope carries its values on its constructor

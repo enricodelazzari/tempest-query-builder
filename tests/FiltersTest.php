@@ -411,3 +411,23 @@ it('spreads several values onto the scope constructor', function (): void {
 it('refuses a scope filter pointed at something that is not a query scope', function (): void {
     new ScopeFilter(Book::class);
 })->throws(ScopeWasInvalid::class);
+
+it('joins a multi-value partial filter to the filter before it with and', function (): void {
+    $request = RequestFactory::make(['filter' => ['id' => '1', 'title' => 'a,b']]);
+
+    $query = new
+        #[Model(Book::class)]
+        #[AllowedFilter('id')]
+        #[AllowedFilter('title', new PartialFilter)]
+        class($request)
+        {
+            use HasQueryBuilder;
+        };
+
+    expect(sql($query))->toBe(implode(' ', [
+        'SELECT '.BOOK_FIELDS.' FROM `books`',
+        'WHERE `books`.`id` = ?',
+        'AND (`books`.`title` LIKE ? OR `books`.`title` LIKE ?)',
+    ]));
+    expect($query->bindings)->toBe(['1', '%a%', '%b%']);
+});
