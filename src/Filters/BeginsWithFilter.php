@@ -4,26 +4,13 @@ declare(strict_types=1);
 
 namespace EnricoDeLazzari\QueryBuilder\Filters;
 
-use Tempest\Database\Builder\QueryBuilders\SelectQueryBuilder;
-use Tempest\Database\Builder\QueryBuilders\WhereGroupBuilder;
-
 /**
  * Matches a column against a `LIKE value%` pattern.
  */
-final class BeginsWithFilter implements Filter
+final class BeginsWithFilter extends LikeFilter
 {
-    public function apply(SelectQueryBuilder $query, string $column, string|array $value): void
+    protected function pattern(string $value): string
     {
-        if (! is_array($value)) {
-            $query->whereLike($column, "{$value}%");
-
-            return;
-        }
-
-        $query->whereGroup(function (WhereGroupBuilder $group) use ($column, $value): void {
-            foreach ($value as $item) {
-                $group->orWhereLike($column, "{$item}%");
-            }
-        });
+        return "{$value}%";
     }
 }

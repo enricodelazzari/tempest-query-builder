@@ -12,21 +12,16 @@ final class FiltersApplier extends Applier
 {
     public function apply(SelectQueryBuilder $query): void
     {
-        /** @var AllowedFilter[] $allowed */
-        $allowed = $this->reflector->getAttributes(AllowedFilter::class);
-
+        $allowed = $this->allowed(AllowedFilter::class);
         $requested = $this->requested();
 
-        $this->guard($requested, $allowed);
+        $this->guard(array_keys($requested), $allowed, InvalidFilterQuery::class);
 
         foreach ($allowed as $filter) {
-            $value = $requested[$filter->name] ?? $filter->default;
-
-            if ($value === null) {
-                continue;
-            }
-
-            $values = $this->split($value, $filter->delimiter);
+            $values = $this->split(
+                $requested[$filter->name] ?? $filter->default ?? '',
+                $filter->delimiter,
+            );
 
             if ($values === []) {
                 continue;
@@ -48,23 +43,5 @@ final class FiltersApplier extends Applier
         $filters = $this->parameter($this->config->filterParameter);
 
         return is_array($filters) ? $filters : [];
-    }
-
-    /**
-     * @param  array<string, mixed>  $requested
-     * @param  AllowedFilter[]  $allowed
-     */
-    private function guard(array $requested, array $allowed): void
-    {
-        if (! $this->config->strict) {
-            return;
-        }
-
-        $names = array_map(static fn (AllowedFilter $filter): string => $filter->name, $allowed);
-        $unknown = array_diff(array_keys($requested), $names);
-
-        if ($unknown !== []) {
-            throw InvalidFilterQuery::forNames($unknown, $names);
-        }
     }
 }

@@ -146,7 +146,7 @@ it('rejects a sort that was not allowed', function () {
         {
             use HasQueryBuilder;
         };
-})->throws(InvalidSortQuery::class, 'Requested sorts `secret` is not allowed. Allowed sorts: `title`.');
+})->throws(InvalidSortQuery::class, 'Sort `secret` is not allowed. Allowed sorts: `title`.');
 
 it('ignores a sort that was not allowed when strict mode is off', function () {
     $request = RequestFactory::make(['sort' => 'secret,title']);
@@ -161,3 +161,15 @@ it('ignores a sort that was not allowed when strict mode is off', function () {
 
     expect(sql($query))->toBe('SELECT '.BOOK_FIELDS.' FROM `books` ORDER BY `books`.`title` ASC');
 });
+
+it('rejects a sort whose direction prefix is malformed', function () {
+    $request = RequestFactory::make(['sort' => '--title']);
+
+    new
+        #[Model(Book::class)]
+        #[AllowedSort('title')]
+        class($request)
+        {
+            use HasQueryBuilder;
+        };
+})->throws(InvalidSortQuery::class, 'Sort `-title` is not allowed. Allowed sorts: `title`.');

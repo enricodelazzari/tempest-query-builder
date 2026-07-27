@@ -6,8 +6,5 @@ namespace EnricoDeLazzari\QueryBuilder\Exceptions;
 
 final class InvalidFilterQuery extends InvalidQuery
 {
-    protected static function subject(): string
-    {
-        return 'filters';
-    }
+    protected const string SUBJECT = 'filter';
 }

@@ -13,7 +13,7 @@ use EnricoDeLazzari\QueryBuilder\Sorts\Sort;
  * to the query.
  */
 #[Attribute(Attribute::TARGET_CLASS | Attribute::IS_REPEATABLE)]
-final readonly class AllowedSort
+final readonly class AllowedSort implements Allowed
 {
     public function __construct(
         /**

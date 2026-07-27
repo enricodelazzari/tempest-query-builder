@@ -12,7 +12,7 @@ use EnricoDeLazzari\QueryBuilder\Filters\Filter;
  * Allows `?filter[name]=…` to be applied to the query.
  */
 #[Attribute(Attribute::TARGET_CLASS | Attribute::IS_REPEATABLE)]
-final readonly class AllowedFilter
+final readonly class AllowedFilter implements Allowed
 {
     public function __construct(
         /**

@@ -19,18 +19,12 @@ final class OperatorFilter implements Filter
 
     public function apply(SelectQueryBuilder $query, string $column, string|array $value): void
     {
-        if ($this->operator->supportsArray()) {
-            $query->whereField($column, (array) $value, $this->operator);
-
-            return;
-        }
-
-        if (! $this->operator->requiresValue()) {
-            $query->whereField($column, null, $this->operator);
-
-            return;
-        }
-
-        $query->whereField($column, is_array($value) ? reset($value) : $value, $this->operator);
+        $query->whereField($column, match (true) {
+            $this->operator->supportsArray() => (array) $value,
+            ! $this->operator->requiresValue() => null,
+            // Operators taking a single value ignore any extra ones.
+            is_array($value) => $value[0],
+            default => $value,
+        }, $this->operator);
     }
 }
