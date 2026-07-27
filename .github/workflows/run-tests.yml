@@ -1,7 +1,12 @@
 name: Tests
 
 on:
+  # Restricted to the default branch: a branch with an open pull request is
+  # already covered by the `pull_request` trigger, and leaving both unrestricted
+  # ran the whole matrix twice for every commit.
   push:
+    branches:
+      - main
     paths:
       - '**.php'
       - '.github/workflows/run-tests.yml'
