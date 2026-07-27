@@ -94,6 +94,7 @@ These filters ship with the package:
 | `OperatorFilter`   | Any Tempest `WhereOperator`, e.g. `new OperatorFilter(WhereOperator::GREATER_THAN)` |
 | `RelationFilter`   | `WHERE EXISTS` against a related model                                           |
 | `ScopeFilter`      | Hands over to one of Tempest's `QueryScope` implementations                       |
+| `CallbackFilter`   | Hands over to a closure declared in the attribute itself                          |
 
 `AllowedFilter` also accepts:
 
@@ -236,8 +237,45 @@ final class PublishedFilter implements Filter
 ```
 
 `$value` is a string when the request held a single value and a list when it held several, so a filter decides for itself
-what several values mean. For `LIKE` filters, extend `LikeFilter` instead and only describe the pattern — combining
-several values with `OR` is already handled:
+what several values mean.
+
+For something that does not earn a class, PHP 8.5 lets a closure live in an attribute, so `CallbackFilter`,
+`CallbackSort` and `CallbackInclude` take one directly:
+
+```php
+use EnricoDeLazzari\QueryBuilder\Filters\CallbackFilter;
+use Tempest\Database\Builder\QueryBuilders\SelectQueryBuilder;
+use Tempest\Database\Builder\QueryBuilders\WhereGroupBuilder;
+use Tempest\Database\Builder\WhereOperator;
+
+#[Model(Book::class)]
+#[AllowedFilter('pages', new CallbackFilter(
+    static function (SelectQueryBuilder|WhereGroupBuilder $query, string $column, string|array $value): void {
+        $query->whereField($column, $value, WhereOperator::GREATER_THAN);
+    },
+))]
+final class BookQueryBuilder
+{
+    use HasQueryBuilder;
+}
+```
+
+A closure in an attribute has to be **static and capture nothing** — the constant expression it lives in cannot hold a
+captured scope. So:
+
+| | |
+|---|---|
+| `static function (…) { … }` | works |
+| `Callbacks::pages(...)` — a first class callable | works |
+| `fn (…) => …` | **rejected**: an arrow function captures its scope implicitly |
+| `function (…) { … }` without `static` | **rejected** |
+| `static function (…) use ($x) { … }` | **rejected** |
+
+The first two are what you want; the arrow function is the one that catches people out, since it is otherwise the
+natural thing to reach for.
+
+For `LIKE` filters, extend `LikeFilter` instead and only describe the pattern — combining several values with `OR` is
+already handled:
 
 ```php
 use EnricoDeLazzari\QueryBuilder\Filters\LikeFilter;
