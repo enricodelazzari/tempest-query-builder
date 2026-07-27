@@ -29,6 +29,11 @@ final class QueryBuilderConfig
         public string $includeParameter = 'include',
 
         /**
+         * Name of the query parameter holding the fields, e.g. `?fields[books]=title`.
+         */
+        public string $fieldsParameter = 'fields',
+
+        /**
          * Character used to split a parameter into multiple values.
          */
         public string $delimiter = ',',

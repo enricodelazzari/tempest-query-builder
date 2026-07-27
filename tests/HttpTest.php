@@ -74,3 +74,21 @@ it('answers with a bad request when the query asks for something not allowed', f
         ->get('/books', ['filter' => ['secret' => '1']])
         ->assertStatus(Status::BAD_REQUEST);
 });
+
+it('narrows the response through the query string', function () {
+    $books = $this->http
+        ->get('/books', [
+            'fields' => ['books' => 'title'],
+            'filter' => ['title' => 'Dune'],
+        ])
+        ->assertOk()
+        ->body['data'];
+
+    expect(json_encode($books))->toBe('[{"title":"Dune"}]');
+});
+
+it('answers with a bad request when the query asks for a field that was not allowed', function () {
+    $this->http
+        ->get('/books', ['fields' => ['books' => 'secret']])
+        ->assertStatus(Status::BAD_REQUEST);
+});

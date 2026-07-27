@@ -13,12 +13,12 @@ use Tempest\Http\Request;
 use Tempest\Reflection\ClassReflector;
 
 use function Tempest\Database\inspect;
-use function Tempest\Database\query;
 
 /**
  * Turns a class annotated with `#[Model]`, `#[AllowedFilter]`, `#[AllowedSort]`,
- * `#[DefaultSort]` and `#[AllowedInclude]` into a Tempest select query that is
- * already filtered, sorted and eager loaded according to the request.
+ * `#[DefaultSort]`, `#[AllowedInclude]` and `#[AllowedField]` into a Tempest
+ * select query that is already filtered, sorted, eager loaded and narrowed
+ * according to the request.
  *
  * Any method that is not defined on the class itself is forwarded to the
  * underlying `SelectQueryBuilder`.
@@ -53,14 +53,20 @@ trait HasQueryBuilder
             throw ModelWasInvalid::missing(static::class);
         }
 
-        if (! inspect($model)->isObjectModel()) {
+        $inspector = inspect($model);
+
+        if (! $inspector->isObjectModel()) {
             throw ModelWasInvalid::notADatabaseModel(
                 static::class,
                 is_object($model) ? $model::class : $model,
             );
         }
 
-        $this->query = query($model)->select();
+        // Fields are fixed when the query is constructed, so they are resolved
+        // before it exists rather than applied to it afterwards.
+        $fields = new FieldsResolver($reflector, $request, $config, $inspector)->resolve();
+
+        $this->query = new SelectQueryBuilder($model, $fields);
 
         new QueryApplier($reflector, $request, $config)->apply($this->query);
     }

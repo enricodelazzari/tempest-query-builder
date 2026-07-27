@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace EnricoDeLazzari\QueryBuilder\Tests\Support\Queries;
 
+use EnricoDeLazzari\QueryBuilder\Attributes\AllowedField;
 use EnricoDeLazzari\QueryBuilder\Attributes\AllowedFilter;
 use EnricoDeLazzari\QueryBuilder\Attributes\AllowedInclude;
 use EnricoDeLazzari\QueryBuilder\Attributes\AllowedSort;
@@ -19,6 +20,8 @@ use Tempest\Database\Direction;
 #[AllowedFilter('author_id')]
 #[AllowedFilter('id')]
 #[AllowedInclude('author')]
+#[AllowedField('id')]
+#[AllowedField('title')]
 #[AllowedSort('title')]
 #[AllowedSort('id')]
 #[DefaultSort('id', Direction::DESC)]

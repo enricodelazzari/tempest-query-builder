@@ -4,8 +4,8 @@
 [![Tests](https://img.shields.io/github/actions/workflow/status/enricodelazzari/tempest-query-builder/run-tests.yml?branch=main&label=tests&style=flat-square)](https://github.com/enricodelazzari/tempest-query-builder/actions/workflows/run-tests.yml)
 [![Total Downloads](https://img.shields.io/packagist/dt/enricodelazzari/tempest-query-builder.svg?style=flat-square)](https://packagist.org/packages/enricodelazzari/tempest-query-builder)
 
-Filter, sort and eager load [Tempest](https://tempestphp.com) models straight from the HTTP request, in the spirit of
-[spatie/laravel-query-builder](https://github.com/spatie/laravel-query-builder).
+Filter, sort, eager load and narrow [Tempest](https://tempestphp.com) models straight from the HTTP request, in the
+spirit of [spatie/laravel-query-builder](https://github.com/spatie/laravel-query-builder).
 
 Everything a query accepts is declared with attributes, so a query builder is a small, readable class that doubles as the
 documentation of your endpoint. What comes out is a plain Tempest `SelectQueryBuilder`, so every method you already know
@@ -202,11 +202,45 @@ GET /books?include=author,author.publisher
 
 Custom includes implement `EnricoDeLazzari\QueryBuilder\Includes\Inclusion`.
 
+## Sparse fieldsets
+
+`?fields[books]=title` narrows the columns the query selects, keyed by the model's table name:
+
+```php
+#[Model(Book::class)]
+#[AllowedField('id')]
+#[AllowedField('title')]
+final class BookQueryBuilder
+{
+    use HasQueryBuilder;
+}
+```
+
+```http
+GET /books?fields[books]=title,id
+```
+
+```sql
+SELECT books.title AS `books.title`, books.id AS `books.id` FROM `books`
+```
+
+Columns are selected in the order the request asked for them. A field is named after the model's column and cannot be
+exposed under a different name, because the column is what the result is keyed by when the model is hydrated.
+
+Two things worth knowing:
+
+- **Only the model's own table can be narrowed.** A fieldset for another table, including one loaded through
+  `?include=`, is ignored: Tempest builds the columns of an eager loaded relation itself, and the package has no say in
+  it. So `?fields[books]=title&include=author` returns the author in full.
+- **The primary key is not selected unless you ask for it.** That is what a sparse fieldset means, but it has a
+  consequence: reading `$book->id` on a model whose key was not selected throws Tempest's `RelationWasMissing`.
+  Serializing the model is fine — the key is simply absent from the output.
+
 ## Rejecting unknown parameters
 
-By default, asking for a filter, sort or include that was not allowed throws — `InvalidFilterQuery`, `InvalidSortQuery`
-or `InvalidIncludeQuery`. They convert to a `400 Bad Request` JSON response listing what was requested and what is
-allowed, so clients get a usable error instead of silently different results.
+By default, asking for a filter, sort, include or field that was not allowed throws — `InvalidFilterQuery`,
+`InvalidSortQuery`, `InvalidIncludeQuery` or `InvalidFieldQuery`. They convert to a `400 Bad Request` JSON response
+listing what was requested and what is allowed, so clients get a usable error instead of silently different results.
 
 Turn this off to ignore unknown parameters instead:
 
@@ -230,6 +264,7 @@ return new QueryBuilderConfig(
     filterParameter: 'filter',
     sortParameter: 'sort',
     includeParameter: 'include',
+    fieldsParameter: 'fields',
     delimiter: ',',
     strict: true,
 );
