@@ -25,13 +25,11 @@
         <!-- Throwaway key: the suite only needs a valid one to boot the kernel. -->
         <env name="SIGNING_KEY" value="Pxz4nLJnxe//A1kIbSIS5P1V7ezCiX8+FKWVBwn6Ueg="/>
     </php>
-    <coverage>
-        <report>
-            <html outputDirectory="build/coverage"/>
-            <text outputFile="build/coverage.txt"/>
-            <clover outputFile="build/logs/clover.xml"/>
-        </report>
-    </coverage>
+    <!--
+        Coverage reports are not declared here: they would make every run
+        require a coverage driver, which CI does not install. Use
+        `composer test-coverage` to generate them on demand.
+    -->
     <logging>
         <junit outputFile="build/report.junit.xml"/>
     </logging>
