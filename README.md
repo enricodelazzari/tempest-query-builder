@@ -517,11 +517,13 @@ $books = $query
 ## Testing
 
 ```bash
-composer test            # Pest
+composer qa              # everything below, in order
+composer fmt             # Pint
 composer analyse         # PHPStan, at max level
-composer refactor-check  # Rector, reporting without writing
+composer refactor:check  # Rector, reporting without writing
 composer refactor        # Rector, applying its changes
-composer format          # Pint
+composer test            # Pest
+composer test:coverage   # Pest, with a coverage report
 ```
 
 Each of these runs in CI on every pull request.

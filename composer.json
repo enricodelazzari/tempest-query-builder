@@ -46,11 +46,17 @@
     },
     "scripts": {
         "test": "vendor/bin/pest",
-        "test-coverage": "vendor/bin/pest --coverage",
+        "test:coverage": "vendor/bin/pest --coverage",
         "analyse": "vendor/bin/phpstan analyse --memory-limit=512M",
         "refactor": "vendor/bin/rector process",
-        "refactor-check": "vendor/bin/rector process --dry-run",
-        "format": "vendor/bin/pint"
+        "refactor:check": "vendor/bin/rector process --dry-run",
+        "fmt": "vendor/bin/pint",
+        "qa": [
+            "@fmt",
+            "@analyse",
+            "@refactor:check",
+            "@test"
+        ]
     },
     "config": {
         "sort-packages": true,
