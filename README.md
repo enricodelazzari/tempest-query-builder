@@ -428,17 +428,22 @@ composer format          # Pint
 
 Each of these runs in CI on every pull request.
 
-The suite runs against SQLite by default. To run it against MySQL instead, point
-it at a server with `DB_DRIVER=mysql`:
+The suite runs against SQLite by default. `DB_DRIVER` points it at MySQL or
+PostgreSQL instead, with the connection read from the rest of the `DB_*`
+variables:
 
 ```bash
 DB_DRIVER=mysql DB_HOST=127.0.0.1 DB_PORT=3306 \
 DB_USERNAME=root DB_PASSWORD= DB_DATABASE=tempest_query_builder \
 composer test
+
+DB_DRIVER=pgsql DB_HOST=127.0.0.1 DB_PORT=5432 \
+DB_USERNAME=postgres DB_PASSWORD=postgres DB_DATABASE=tempest_query_builder \
+composer test
 ```
 
-CI runs both, so a change that compiles to different SQL on the two dialects is
-caught before it lands.
+CI runs all three, so a change that compiles to different SQL on one of the
+dialects is caught before it lands.
 
 ## Changelog
 
