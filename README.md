@@ -135,6 +135,33 @@ final class BookQueryBuilder
 GET /books?filter[author]=tolkien
 ```
 
+### Filtering a relation by its key
+
+`BelongsToFilter` matches a `belongsTo` relation by the key of the record it
+points at, reading the foreign key off the relation instead of asking you to
+name it:
+
+```php
+#[Model(Book::class)]
+#[AllowedFilter('author', new BelongsToFilter)]
+final class BookQueryBuilder
+{
+    use HasQueryBuilder;
+}
+```
+
+```http
+GET /books?filter[author]=1,2
+```
+
+```sql
+SELECT … FROM `books` WHERE `books`.`author_id` IN (?,?)
+```
+
+A model that names its foreign key something other than the convention filters
+correctly all the same, and a relation the model does not define as a
+`belongsTo` is reported rather than reaching the database as an unknown column.
+
 ### Filter groups
 
 A group fans one query parameter out over several filters, so `?filter[q]=John` can search more than one column at once:
@@ -452,7 +479,24 @@ return new QueryBuilderConfig(
     includeParameter: 'include',
     fieldsParameter: 'fields',
     delimiter: ',',
+    splitFilterValues: true,
     strict: true,
+);
+```
+
+`delimiter` splits a parameter into several values. Set it to an empty string to
+keep every value whole, for a query string whose values contain the delimiter
+themselves. `splitFilterValues: false` does the same for filters alone, leaving
+sorts, includes and fields splitting as usual — and an individual filter can
+still override both with its own `delimiter`.
+
+`strict` decides whether a parameter that was not allowed is rejected or
+ignored. Each kind can override it:
+
+```php
+return new QueryBuilderConfig(
+    strict: true,
+    strictSorts: false, // an unknown sort is ignored, everything else still throws
 );
 ```
 

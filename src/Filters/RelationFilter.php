@@ -25,7 +25,15 @@ final readonly class RelationFilter implements Filter
     {
         $query->whereHas(
             $this->relation,
-            fn (SelectQueryBuilder $related) => $this->filter->apply($related, $column, $value),
+            // The inner filter is resolved against the related model, which is
+            // the one the subquery selects from.
+            fn (SelectQueryBuilder $related) => $this->filter->apply(
+                $related,
+                $this->filter instanceof ResolvesColumn
+                    ? $this->filter->column($related->model, $column)
+                    : $column,
+                $value,
+            ),
         );
     }
 }

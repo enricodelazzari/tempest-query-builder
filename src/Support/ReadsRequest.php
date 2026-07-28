@@ -51,14 +51,16 @@ trait ReadsRequest
      * @param  string[]  $requested  the names to check
      * @param  Allowed[]  $allowed
      * @param  class-string<InvalidQuery>  $exception
+     * @param  bool|null  $strict  the per-parameter override, when the config
+     *                             sets one, falling back to the global flag
      * @param  string[]|null  $reported  what to name in the error, keyed like
      *                                   `$requested`, when the two differ —
      *                                   a sort is checked without its direction
      *                                   prefix but should be reported with it
      */
-    protected function guard(array $requested, array $allowed, string $exception, ?array $reported = null): void
+    protected function guard(array $requested, array $allowed, string $exception, ?bool $strict = null, ?array $reported = null): void
     {
-        if (! $this->config->strict) {
+        if (! ($strict ?? $this->config->strict)) {
             return;
         }
 
@@ -113,14 +115,20 @@ trait ReadsRequest
     /**
      * Splits a raw request value into a list, dropping empty entries.
      *
-     * @param  non-empty-string|null  $delimiter
+     * An empty delimiter keeps the value whole, which is how a query string
+     * whose values contain the delimiter themselves is read.
+     *
      * @return string[]
      */
     protected function split(mixed $value, ?string $delimiter = null): array
     {
-        $values = is_array($value)
-            ? $value
-            : explode($delimiter ?? $this->config->delimiter, self::stringify($value));
+        $delimiter ??= $this->config->delimiter;
+
+        $values = match (true) {
+            is_array($value) => $value,
+            $delimiter === '' => [self::stringify($value)],
+            default => explode($delimiter, self::stringify($value)),
+        };
 
         $values = array_map(
             static fn (mixed $item): string => trim(self::stringify($item)),

@@ -3,10 +3,14 @@
 declare(strict_types=1);
 
 use EnricoDeLazzari\QueryBuilder\Attributes\AllowedFilter;
+use EnricoDeLazzari\QueryBuilder\Attributes\AllowedFilterGroup;
+use EnricoDeLazzari\QueryBuilder\Attributes\Conjunction;
 use EnricoDeLazzari\QueryBuilder\Attributes\Model;
 use EnricoDeLazzari\QueryBuilder\Exceptions\InvalidFilterQuery;
+use EnricoDeLazzari\QueryBuilder\Exceptions\RelationWasInvalid;
 use EnricoDeLazzari\QueryBuilder\Exceptions\ScopeWasInvalid;
 use EnricoDeLazzari\QueryBuilder\Filters\BeginsWithFilter;
+use EnricoDeLazzari\QueryBuilder\Filters\BelongsToFilter;
 use EnricoDeLazzari\QueryBuilder\Filters\EndsWithFilter;
 use EnricoDeLazzari\QueryBuilder\Filters\ExactFilter;
 use EnricoDeLazzari\QueryBuilder\Filters\OperatorFilter;
@@ -431,3 +435,76 @@ it('joins a multi-value partial filter to the filter before it with and', functi
     ]));
     expect($query->bindings)->toBe(['1', '%a%', '%b%']);
 });
+
+it('filters a belongs to relation by its key', function (): void {
+    $request = RequestFactory::make(['filter' => ['author' => '1']]);
+
+    $query = new
+        #[Model(Book::class)]
+        #[AllowedFilter('author', new BelongsToFilter)]
+        class($request)
+        {
+            use HasQueryBuilder;
+        };
+
+    // `author_id` is read off the relation, not spelled out by the attribute.
+    expect(sql($query))->toBe('SELECT '.BOOK_FIELDS.' FROM books WHERE books.author_id = ?')
+        ->and($query->bindings)->toBe(['1']);
+});
+
+it('filters a belongs to relation by several keys', function (): void {
+    $request = RequestFactory::make(['filter' => ['author' => '1,2']]);
+
+    $query = new
+        #[Model(Book::class)]
+        #[AllowedFilter('author', new BelongsToFilter)]
+        class($request)
+        {
+            use HasQueryBuilder;
+        };
+
+    expect(sql($query))->toBe('SELECT '.BOOK_FIELDS.' FROM books WHERE books.author_id IN (?,?)')
+        ->and($query->bindings)->toBe(['1', '2']);
+});
+
+it('filters a belongs to relation exposed under another name', function (): void {
+    $request = RequestFactory::make(['filter' => ['writer' => '1']]);
+
+    $query = new
+        #[Model(Book::class)]
+        #[AllowedFilter('writer', new BelongsToFilter, alias: 'author')]
+        class($request)
+        {
+            use HasQueryBuilder;
+        };
+
+    expect(sql($query))->toBe('SELECT '.BOOK_FIELDS.' FROM books WHERE books.author_id = ?');
+});
+
+it('filters a belongs to relation inside a group', function (): void {
+    $request = RequestFactory::make(['filter' => ['q' => '1']]);
+
+    $query = new
+        #[Model(Book::class)]
+        #[AllowedFilterGroup('q', [
+            new AllowedFilter('author', new BelongsToFilter),
+            new AllowedFilter('id'), ], Conjunction::OR)]
+        class($request)
+        {
+            use HasQueryBuilder;
+        };
+
+    expect(sql($query))->toContain('books.author_id = ?');
+});
+
+it('refuses a belongs to filter pointed at something else', function (): void {
+    $request = RequestFactory::make(['filter' => ['title' => '1']]);
+
+    new
+        #[Model(Book::class)]
+        #[AllowedFilter('title', new BelongsToFilter)]
+        class($request)
+        {
+            use HasQueryBuilder;
+        };
+})->throws(RelationWasInvalid::class, 'does not define `title` as one');

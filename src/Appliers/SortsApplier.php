@@ -21,6 +21,7 @@ final class SortsApplier extends Applier
             array_map($this->name(...), $requested),
             $allowed,
             InvalidSortQuery::class,
+            $this->config->strictSorts,
             reported: $requested,
         );
 

@@ -12,9 +12,6 @@ namespace EnricoDeLazzari\QueryBuilder;
  */
 final class QueryBuilderConfig
 {
-    /**
-     * @param  non-empty-string  $delimiter
-     */
     public function __construct(
         /**
          * Name of the query parameter holding the filters, e.g. `?filter[title]=tempest`.
@@ -37,15 +34,35 @@ final class QueryBuilderConfig
         public string $fieldsParameter = 'fields',
 
         /**
-         * Character used to split a parameter into multiple values.
+         * Character used to split a parameter into multiple values. An empty
+         * string keeps every value whole, for a query string whose values are
+         * expected to contain the delimiter themselves.
          */
         public string $delimiter = ',',
 
         /**
-         * Throw an exception when the request asks for a filter, sort or include
-         * that was not explicitly allowed. When disabled, unknown parameters are
-         * silently ignored.
+         * Split filter values on the delimiter. Disabling this leaves filters
+         * with whole values while sorts, includes and fields keep splitting.
+         */
+        public bool $splitFilterValues = true,
+
+        /**
+         * Throw an exception when the request asks for a filter, sort, include
+         * or field that was not explicitly allowed. When disabled, unknown
+         * parameters are silently ignored.
          */
         public bool $strict = true,
+
+        /**
+         * Overrides `$strict` for one kind of parameter, e.g. to reject an
+         * unknown filter while ignoring an unknown sort.
+         */
+        public ?bool $strictFilters = null,
+
+        public ?bool $strictSorts = null,
+
+        public ?bool $strictIncludes = null,
+
+        public ?bool $strictFields = null,
     ) {}
 }

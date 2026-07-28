@@ -8,6 +8,7 @@ use EnricoDeLazzari\QueryBuilder\Attributes\AllowedFilter;
 use EnricoDeLazzari\QueryBuilder\Attributes\AllowedFilterGroup;
 use EnricoDeLazzari\QueryBuilder\Attributes\Conjunction;
 use EnricoDeLazzari\QueryBuilder\Exceptions\InvalidFilterQuery;
+use EnricoDeLazzari\QueryBuilder\Filters\ResolvesColumn;
 use Tempest\Database\Builder\QueryBuilders\SelectQueryBuilder;
 use Tempest\Database\Builder\QueryBuilders\WhereGroupBuilder;
 
@@ -19,7 +20,7 @@ final class FiltersApplier extends Applier
         $groups = $this->allowed(AllowedFilterGroup::class);
         $requested = $this->requested();
 
-        $this->guard(array_keys($requested), [...$filters, ...$groups], InvalidFilterQuery::class);
+        $this->guard(array_keys($requested), [...$filters, ...$groups], InvalidFilterQuery::class, $this->config->strictFilters);
 
         foreach ($filters as $filter) {
             $this->applyFilter($query, $filter, $requested);
@@ -43,7 +44,7 @@ final class FiltersApplier extends Applier
 
         $values = $this->split(
             ($asked ? $requested[$filter->name] : $filter->default) ?? '',
-            $filter->delimiter,
+            $this->delimiter($filter),
         );
 
         if ($values === []) {
@@ -63,7 +64,7 @@ final class FiltersApplier extends Applier
             return;
         }
 
-        $filter->filter->apply($query, $filter->column(), $this->one($values));
+        $filter->filter->apply($query, $this->column($query, $filter), $this->one($values));
     }
 
     /**
@@ -73,14 +74,14 @@ final class FiltersApplier extends Applier
      */
     private function applyGroup(SelectQueryBuilder $query, AllowedFilterGroup $group, mixed $raw): void
     {
-        /** @var array<array{AllowedFilter, string|string[]}> $members */
+        /** @var array<array{AllowedFilter, string, string|string[]}> $members */
         $members = [];
 
         foreach ($group->members as $member) {
-            $values = $this->keep($this->split($raw ?? '', $member->delimiter), $member);
+            $values = $this->keep($this->split($raw ?? '', $this->delimiter($member)), $member);
 
             if ($values !== []) {
-                $members[] = [$member, $this->one($values)];
+                $members[] = [$member, $this->column($query, $member), $this->one($values)];
             }
         }
 
@@ -89,20 +90,50 @@ final class FiltersApplier extends Applier
         }
 
         $query->andWhereGroup(function (WhereGroupBuilder $builder) use ($members, $group): void {
-            foreach ($members as $index => [$member, $value]) {
+            foreach ($members as $index => [$member, $column, $value]) {
                 // Each member gets a nesting of its own, which is what makes a
                 // member free to write more than one condition without the
                 // group's conjunction binding to only part of it.
                 $builder->whereGroup(
                     static fn (WhereGroupBuilder $condition) => $member->filter->apply(
                         $condition,
-                        $member->column(),
+                        $column,
                         $value,
                     ),
                     $index === 0 ? Conjunction::AND->value : $group->conjunction->value,
                 );
             }
         });
+    }
+
+    /**
+     * The column a filter acts on: the one the attribute names, unless the
+     * filter works it out from the model itself.
+     *
+     * This is resolved here rather than inside the filter because a filter in a
+     * group is handed a `WhereGroupBuilder`, which does not expose the model.
+     */
+    private function column(SelectQueryBuilder $query, AllowedFilter $filter): string
+    {
+        if ($filter->filter instanceof ResolvesColumn) {
+            return $filter->filter->column($query->model, $filter->column());
+        }
+
+        return $filter->column();
+    }
+
+    /**
+     * The delimiter a filter's values are split on: its own when it names one,
+     * and otherwise the configured one — unless the config turned splitting off
+     * for filters, which an empty delimiter expresses.
+     */
+    private function delimiter(AllowedFilter $filter): ?string
+    {
+        if ($filter->delimiter !== null) {
+            return $filter->delimiter;
+        }
+
+        return $this->config->splitFilterValues ? null : '';
     }
 
     /**

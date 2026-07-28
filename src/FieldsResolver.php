@@ -66,7 +66,7 @@ final readonly class FieldsResolver
         $allowed = $this->allowed(AllowedField::class);
         $requested = $this->requested();
 
-        $this->guard($requested, $allowed, InvalidFieldQuery::class);
+        $this->guard($requested, $allowed, InvalidFieldQuery::class, $this->config->strictFields);
 
         // Only null when strict mode is off, since `guard` threw otherwise.
         $names = array_values(array_filter(
