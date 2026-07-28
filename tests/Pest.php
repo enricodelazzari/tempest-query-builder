@@ -18,6 +18,12 @@ const BOOK_FIELDS = 'books.id AS books.id, books.title AS books.title, books.aut
  */
 const AUTHOR_FIELDS = 'authors.id AS author.id, authors.name AS author.name';
 
+/**
+ * The columns an Author query selects, when the author is the queried model
+ * rather than an included relation.
+ */
+const AUTHOR_COLUMNS = 'authors.id AS authors.id, authors.name AS authors.name';
+
 const AUTHOR_JOIN = 'LEFT JOIN authors ON authors.id = books.author_id';
 
 /**

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace EnricoDeLazzari\QueryBuilder\Support;
 
 use EnricoDeLazzari\QueryBuilder\Attributes\Allowed;
+use EnricoDeLazzari\QueryBuilder\Attributes\AllowedInclude;
 use EnricoDeLazzari\QueryBuilder\Exceptions\InvalidQuery;
 use Stringable;
 use Tempest\Support\Arr\ImmutableArray;
@@ -74,6 +75,28 @@ trait ReadsRequest
             array_map(static fn (int|string $key): string => $reported[$key], array_keys($unknown)),
             $names,
         );
+    }
+
+    /**
+     * The includes the request asks for that the query builder allows, in the
+     * order they were asked for.
+     *
+     * Both the field resolution and the includes applier work from this, so
+     * that the column an aggregate selects and the join it reads from can never
+     * disagree about which includes are in play.
+     *
+     * @return AllowedInclude[]
+     */
+    protected function includes(): array
+    {
+        $allowed = $this->allowed(AllowedInclude::class);
+
+        $requested = $this->split($this->parameter($this->config->includeParameter) ?? '');
+
+        return array_values(array_filter(array_map(
+            fn (string $name): ?AllowedInclude => $this->find($allowed, $name),
+            $requested,
+        )));
     }
 
     /**

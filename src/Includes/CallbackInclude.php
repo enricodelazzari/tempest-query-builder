@@ -17,14 +17,14 @@ use Tempest\Database\Builder\QueryBuilders\SelectQueryBuilder;
 final readonly class CallbackInclude implements Inclusion
 {
     /**
-     * @param  Closure(SelectQueryBuilder, string): void  $callback
+     * @param  Closure(SelectQueryBuilder, string, string): void  $callback
      */
     public function __construct(
         private Closure $callback,
     ) {}
 
-    public function apply(SelectQueryBuilder $query, string $relation): void
+    public function apply(SelectQueryBuilder $query, string $relation, string $name): void
     {
-        ($this->callback)($query, $relation);
+        ($this->callback)($query, $relation, $name);
     }
 }

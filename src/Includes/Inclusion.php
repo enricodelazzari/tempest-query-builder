@@ -10,6 +10,7 @@ interface Inclusion
 {
     /**
      * @param  string  $relation  the model relation the include applies to
+     * @param  string  $name  the name the include is exposed under
      */
-    public function apply(SelectQueryBuilder $query, string $relation): void;
+    public function apply(SelectQueryBuilder $query, string $relation, string $name): void;
 }

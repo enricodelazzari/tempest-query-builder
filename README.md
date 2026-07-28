@@ -334,6 +334,60 @@ GET /books?include=author,author.publisher
 
 Custom includes implement `EnricoDeLazzari\QueryBuilder\Includes\Inclusion`.
 
+### Counting and aggregating a relation
+
+Instead of loading a relation, an include can select an aggregate over it:
+
+```php
+use EnricoDeLazzari\QueryBuilder\Includes\AggregateInclude;
+use EnricoDeLazzari\QueryBuilder\Includes\CountInclude;
+use EnricoDeLazzari\QueryBuilder\Includes\ExistsInclude;
+use Tempest\Database\AggregateFunction;
+
+#[Model(Author::class)]
+#[AllowedInclude('booksCount', new CountInclude, alias: 'books')]
+#[AllowedInclude('booksExists', new ExistsInclude, alias: 'books')]
+#[AllowedInclude('pagesSum', new AggregateInclude(AggregateFunction::SUM, 'pages'), alias: 'books')]
+final class AuthorQueryBuilder
+{
+    use HasQueryBuilder;
+}
+```
+
+```http
+GET /authors?include=booksCount,pagesSum
+```
+
+An aggregate is selected as a column, so the model needs a property to receive
+it, named exactly as the include is exposed. Mark it `#[Virtual]` so Tempest
+does not also look for a column of that name on the table:
+
+```php
+use Tempest\Database\Virtual;
+
+final class Author
+{
+    use IsDatabaseModel;
+
+    public string $name;
+
+    #[Virtual]
+    public int $booksCount = 0;
+
+    #[Virtual]
+    public ?int $pagesSum = null;
+}
+```
+
+`CountInclude` and `ExistsInclude` answer `0` for a relation with no records —
+`ExistsInclude` answers `1` or `0` rather than a boolean, so that every database
+agrees. `AggregateInclude` answers `null`, which is what SQL gives for an
+aggregate over no rows, so type that property nullable.
+
+A relation that points a table at itself is not supported here: the aggregate
+joins the queried table to the related one, and Tempest does not alias the two
+apart.
+
 ## Sparse fieldsets
 
 `?fields[books]=title` narrows the columns the query selects, keyed by the model's table name:
