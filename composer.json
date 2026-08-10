@@ -27,7 +27,7 @@
         "tempest/support": "^3.17"
     },
     "require-dev": {
-        "composer/pcre": "<3.4",
+        "composer/pcre": "<3.5",
         "laravel/pint": "^1.24",
         "pestphp/pest": "^4.7",
         "phpstan/phpstan": "~2.2.7",
